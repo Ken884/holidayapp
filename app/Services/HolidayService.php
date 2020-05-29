@@ -53,4 +53,52 @@ class HolidayService
 
         }); // トランザクションここまで
     }
+
+    //Ajaxで受け取った日付から土日祝日を除いた期間を返す
+    public function getDuration($params)
+    {
+        $fromdate = new Carbon($params['holiday_date_from']);
+        $todate = new Carbon($params['holiday_date_to']);
+        $period = CarbonPeriod::create($fromdate, $todate);
+        $days = 0;
+
+        foreach($period as $date){
+            if( ($date->dayOfWeek != 0) && ($date->dayOfWeek != 6) && !($this->yasumiService->isHoliday($date)) )
+            {
+                $days++;
+            }
+        }
+        return $days;
+    }
+
+    public function getYasumiArray()
+    {
+        $previous = Carbon::now()->subYear();
+        $previousYasumis = $this->yasumiService->getYasumis(($previous->year));
+        
+        $now = Carbon::now();
+        $thisYasumis = $this->yasumiService->getYasumis($now->year);
+
+        $next = Carbon::now()->addYear();
+        $nextYasumis = $this->yasumiService->getYasumis($next->year);
+
+        foreach($previousYasumis as $previousYasumi)
+        {
+            $yasumis[] = $previousYasumi->format('Y-m-d');
+        }
+        
+        
+        foreach($thisYasumis as $thisYasumi)
+        {
+            $yasumis[] = $thisYasumi->format('Y-m-d');
+        }
+        
+        foreach($nextYasumis as $nextYasumi)
+        {
+            $yasumis[] = $nextYasumi->format('Y-m-d');
+        }
+        
+        return $yasumis;
+
+    }
 }

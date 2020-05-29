@@ -9,7 +9,9 @@ require('jquery-timepicker/jquery.timepicker')
 var moment = require('moment')
 
 
-const getBussinessDays = function(start, end){
+/*
+ *土日を除いた休暇期間を返す関数
+    const getBussinessDays = function(start, end){
     let bussinessDays = 0;
     let d = new Date(start);
     let e = new Date(end);
@@ -19,9 +21,9 @@ const getBussinessDays = function(start, end){
         if(d.getDay() != 0 && d.getDay() != 6 ) bussinessDays++;
         d.setDate(d.getDate()+1);
     }
-    console.log(bussinessDays);
     return bussinessDays;
 }
+*/
 
 const getBussinessHours = function(start, end){
     let d = moment(start, "HH:mm");
@@ -30,13 +32,18 @@ const getBussinessHours = function(start, end){
     return bussinessHours;
 }
 
+//JSONで受け取った祝日リストをミリ秒の配列に変換
+const yasumis = $('#holiday_date').data('json').map(yasumi => new Date(`${yasumi} 00:00:00`).getTime());
+
 
 $(function () {
     $('.datepicker').datepicker({
         dateFormat: 'yy-mm-dd(D)',
         beforeShowDay: function (date) {
-            if (date.getDay() == 0 || date.getDay() == 6) {
-                // 日曜日
+            
+            console.log(date, date.getTime(), yasumis.includes(date.getTime()));
+            if (date.getDay() == 0 || date.getDay() == 6 || yasumis.includes(date.getTime())) {
+                // 土日祝日
                 return [false, 'ui-state-disabled'];
             } else {
                 // 平日
@@ -84,23 +91,20 @@ $(function () {
             $('#holiday_days').val(null);
         }
     });
-    $('#holiday_date_from').on('change', function(){
-        if($('#holiday_date_to').val() != ''){
-            $('holiday_days').val(getBussinessDays($('#holiday_date_from').val(), $('#holiday_date_to').val()))
+    $('.datepicker').on('change', function(){
+        if($('#holiday_date_from').val() != '' && ($('#holiday_date_to').val() != '')) {
+            $.ajax({
+                url: '/getDuration',
+                type: 'GET',
+                data: {
+                    'holiday_date_from': $('#holiday_date_from').val(),
+                    'holiday_date_to': $('#holiday_date_to').val()
+                }
+            }).done(data => $('#holiday_days').val(data));
         }
     });
-    $('#holiday_date_to').on('change', function(){
-        if($('#holiday_date_from').val() != ''){
-            $('#holiday_days').val(getBussinessDays($('#holiday_date_from').val(), $('#holiday_date_to').val()))
-        }
-    });
-    $('#holiday_time_from').on('change', function(){
-        if($('#holiday_time_to').val() != ''){
-            $('#holiday_hours').val(getBussinessHours($('#holiday_time_from').val(), $('#holiday_time_to').val()))
-        }
-    });
-    $('#holiday_time_to').on('change', function(){
-        if($('#holiday_time_from').val() != ''){
+    $('.timepicker').on('change', function(){
+        if($('#holiday_time_to').val() != '' && $('#holiday_time_from').val() != ''){
             $('#holiday_hours').val(getBussinessHours($('#holiday_time_from').val(), $('#holiday_time_to').val()))
         }
     });

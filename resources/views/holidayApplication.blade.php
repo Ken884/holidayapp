@@ -22,13 +22,13 @@
                         <label class="mt-3">期間</label>
                     </div>
                     <div class="col-sm-9">
-                        <div class="form-inline">
+                        <div class="form-inline" id="holiday_date" data-json="{{ $yasumiArray }}">
                             <input id="holiday_date_from" type="text" name="holiday_date_from" value="{{ old('holiday_date_from') }}" class="col-5 col-sm-3 form-control datepicker mx-2 @error('holiday_date_from') is-invalid @enderror">
                             <label> ～ </label>
                             <input id="holiday_date_to" type="text" name="holiday_date_to" value="{{ old('holiday_date_to')}}" class="col-5 col-sm-3 form-control datepicker mx-2 @error('holiday_date_to') is-invalid @enderror">
 
                             <div class="input-group my-2 col-5 col-sm-2 p-0 mx-2">
-                                <input id="holiday_days" type="text" name="holiday_days" value="{{old('holiday_days')}}" readonly class="form-control">
+                                <input id="holiday_days" type="text" name="holiday_days" value="{{ old('holiday_days')}} " readonly class="form-control">
                                 <div class=" input-group-append">
                                     <span class="input-group-text">日間</span>
                                 </div>

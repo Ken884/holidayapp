@@ -80487,36 +80487,42 @@ __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 __webpack_require__(/*! jquery-timepicker/jquery.timepicker */ "./node_modules/jquery-timepicker/jquery.timepicker.js");
 
 var moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+/*
+ *土日を除いた休暇期間を返す関数
+    const getBussinessDays = function(start, end){
+    let bussinessDays = 0;
+    let d = new Date(start);
+    let e = new Date(end);
+    console.log(d);
+    console.log(e);
+    while (d <= e){
+        if(d.getDay() != 0 && d.getDay() != 6 ) bussinessDays++;
+        d.setDate(d.getDate()+1);
+    }
+    return bussinessDays;
+}
+*/
 
-var getBussinessDays = function getBussinessDays(start, end) {
-  var bussinessDays = 0;
-  var d = new Date(start);
-  var e = new Date(end);
-  console.log(d);
-  console.log(e);
-
-  while (d <= e) {
-    if (d.getDay() != 0 && d.getDay() != 6) bussinessDays++;
-    d.setDate(d.getDate() + 1);
-  }
-
-  console.log(bussinessDays);
-  return bussinessDays;
-};
 
 var getBussinessHours = function getBussinessHours(start, end) {
   var d = moment(start, "HH:mm");
   var e = moment(end, "HH:mm");
   var bussinessHours = e.diff(d, 'h', true);
   return bussinessHours;
-};
+}; //JSONで受け取った祝日リストをミリ秒の配列に変換
 
+
+var yasumis = $('#holiday_date').data('json').map(function (yasumi) {
+  return new Date("".concat(yasumi, " 00:00:00")).getTime();
+});
 $(function () {
   $('.datepicker').datepicker({
     dateFormat: 'yy-mm-dd(D)',
     beforeShowDay: function beforeShowDay(date) {
-      if (date.getDay() == 0 || date.getDay() == 6) {
-        // 日曜日
+      console.log(date, date.getTime(), yasumis.includes(date.getTime()));
+
+      if (date.getDay() == 0 || date.getDay() == 6 || yasumis.includes(date.getTime())) {
+        // 土日祝日
         return [false, 'ui-state-disabled'];
       } else {
         // 平日
@@ -80569,23 +80575,22 @@ $(function () {
       $('#holiday_days').val(null);
     }
   });
-  $('#holiday_date_from').on('change', function () {
-    if ($('#holiday_date_to').val() != '') {
-      $('holiday_days').val(getBussinessDays($('#holiday_date_from').val(), $('#holiday_date_to').val()));
+  $('.datepicker').on('change', function () {
+    if ($('#holiday_date_from').val() != '' && $('#holiday_date_to').val() != '') {
+      $.ajax({
+        url: '/getDuration',
+        type: 'GET',
+        data: {
+          'holiday_date_from': $('#holiday_date_from').val(),
+          'holiday_date_to': $('#holiday_date_to').val()
+        }
+      }).done(function (data) {
+        return $('#holiday_days').val(data);
+      });
     }
   });
-  $('#holiday_date_to').on('change', function () {
-    if ($('#holiday_date_from').val() != '') {
-      $('#holiday_days').val(getBussinessDays($('#holiday_date_from').val(), $('#holiday_date_to').val()));
-    }
-  });
-  $('#holiday_time_from').on('change', function () {
-    if ($('#holiday_time_to').val() != '') {
-      $('#holiday_hours').val(getBussinessHours($('#holiday_time_from').val(), $('#holiday_time_to').val()));
-    }
-  });
-  $('#holiday_time_to').on('change', function () {
-    if ($('#holiday_time_from').val() != '') {
+  $('.timepicker').on('change', function () {
+    if ($('#holiday_time_to').val() != '' && $('#holiday_time_from').val() != '') {
       $('#holiday_hours').val(getBussinessHours($('#holiday_time_from').val(), $('#holiday_time_to').val()));
     }
   });
@@ -80605,27 +80610,15 @@ $(function () {
 
 /***/ }),
 
-/***/ "./resources/sass/holidayApplication.scss":
-/*!************************************************!*\
-  !*** ./resources/sass/holidayApplication.scss ***!
-  \************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-
 /***/ 0:
-/*!******************************************************************************************************!*\
-  !*** multi ./resources/js/app.js ./resources/sass/app.scss ./resources/sass/holidayApplication.scss ***!
-  \******************************************************************************************************/
+/*!*************************************************************!*\
+  !*** multi ./resources/js/app.js ./resources/sass/app.scss ***!
+  \*************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(/*! C:\Holiday\HolidayApplicationSystem\resources\js\app.js */"./resources/js/app.js");
-__webpack_require__(/*! C:\Holiday\HolidayApplicationSystem\resources\sass\app.scss */"./resources/sass/app.scss");
-module.exports = __webpack_require__(/*! C:\Holiday\HolidayApplicationSystem\resources\sass\holidayApplication.scss */"./resources/sass/holidayApplication.scss");
+module.exports = __webpack_require__(/*! C:\Holiday\HolidayApplicationSystem\resources\sass\app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

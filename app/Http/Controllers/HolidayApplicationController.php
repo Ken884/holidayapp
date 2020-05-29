@@ -13,6 +13,7 @@ use Carbon\CarbonPeriod;
 use Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\HolidayService;
+use App\Http\Requests\HolidayDurationAjax;
 
 class HolidayApplicationController extends Controller
 {
@@ -27,16 +28,30 @@ class HolidayApplicationController extends Controller
      */
 
     /**
-    * 項目｢区分｣に表示する休暇区分の値を、休暇届申請作成画面に渡す
-    * @param HolidayClass $holidayClass 休暇区分が格納されているモデル
-    * @return response 休暇申請画面のview
     */
-    public function index(HolidayClass $holidayClass){
+    public function holiday_create(Request $req)
+    {
         //home画面に休暇届テーブルを表示(テスト用のため適当に作成)
-        $data1['holiday_applications']= DB::table('holiday_applications');
-        $data2['holiday_datetimes']= DB::table('holiday_datetimes');
+        $yasumiArray = $this->holidayService->getYasumiArray();
+        $yasumiArray = json_encode($yasumiArray);
+        return view('holidayApplication', compact('yasumiArray'));
+    }
+    
+    /*
+    * 編集画面の土日祝日を除いた期間計算
+    */
+    public function duration(Request $req)
+    {
+        $params = $req->all();
 
-        return view('holidayApplication', compact(['holidayClass' => $holidayClass], $data1, $data2));
+        $fromArr = preg_split('/\(/', $params['holiday_date_from']);
+        $params['holiday_date_from'] = $fromArr[0];
+
+        $toArr = preg_split('/\(/', $params['holiday_date_to']);
+        $params['holiday_date_to'] = $toArr[0];
+
+        $days = $this->holidayService->getDuration($params);
+        return $days;
     }
 
 
@@ -44,8 +59,10 @@ class HolidayApplicationController extends Controller
      * 休暇届のデータを｢休暇届テーブル｣と｢休暇日時テーブル｣に保存
      * @param HolidayApplicationPostReq $req バリデーションを通過したリクエストの値
      */
-    public function saveHolidayApplication(HolidayApplicationPostReq $req){
+    public function saveHolidayApplication(HolidayApplicationPostReq $req)
+    {
         $params = $req->all();
+        
         $this->holidayService->saveHoliday($params);
 
         return redirect('home');

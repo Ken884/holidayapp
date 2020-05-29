@@ -12,19 +12,19 @@ use Yasumi\Yasumi;
 
 class YasumiService
 {
-    public function isHoliday($date){
+    public function isHoliday($date)
+    {
         $holidays = Yasumi::create('Japan', $date->year);
         return $holidays->isHoliday($date);
     }
 
-    public function getThisYasumis(){
-        $now = Carbon::now();
-        return $holidays = Yasumi::create('Japan', $now->year);
+
+    public function getYasumis($year)
+    {
+        $now = Carbon::create($year);
+        $holidays = Yasumi::create('Japan', $year);
+        return $holidays;
     }
 
-    public function getNextYasumis(){
-        $now = Carbon::now();
-        $now->addYear();
-        return $holidays = Yasumi::create('Japan', $now->year);
-    }
+    
 }
