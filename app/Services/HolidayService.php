@@ -19,36 +19,36 @@ class HolidayService
     {
         $this->yasumiService = $yasumiService;
     }
-    public function saveHoliday($params){
-        
-        DB::transaction(function() use($params) {
+    public function saveHoliday($params)
+    {
+
+        DB::transaction(function () use ($params) {
             //休暇届テーブルにデータを保存
-        $holidayapp = new HolidayApplication;
-        $holidayapp->employee_id = Auth::id();
-        $holidayapp->submit_date = Carbon::now();
-        $holidayapp->holiday_class_common_id = $params['holiday_class_common_id'];
-        $holidayapp->reason = $params['reason'];
-        $holidayapp->remarks = $params['remarks'];
-        $holidayapp->appliication_status = 0;
-        //dd($holidayapp);
-        $holidayapp->save();
+            $holidayapp = new HolidayApplication;
+            $holidayapp->employee_id = Auth::id();
+            $holidayapp->submit_date = Carbon::now();
+            $holidayapp->holiday_class_common_id = $params['holiday_class_common_id'];
+            $holidayapp->reason = $params['reason'];
+            $holidayapp->remarks = $params['remarks'];
+            $holidayapp->appliication_status = 0;
+            //dd($holidayapp);
+            $holidayapp->save();
 
-        //休暇日時テーブルにデータを保存
-        $fromdate = new Carbon($params['holiday_date_from']);
-        $todate = new Carbon($params['holiday_date_to'] ?? $params['holiday_date_from']);
-        $period = CarbonPeriod::create($fromdate, $todate);
+            //休暇日時テーブルにデータを保存
+            $fromdate = new Carbon($params['holiday_date_from']);
+            $todate = new Carbon($params['holiday_date_to'] ?? $params['holiday_date_from']);
+            $period = CarbonPeriod::create($fromdate, $todate);
 
-        foreach($period as $date){
-            if( ($date->dayOfWeek != 0) && ($date->dayOfWeek != 6) && !($this->yasumiService->isHoliday($date)) )
-            {
-            $holidayDatetime = new HolidayDatetime();
-            $holidayDatetime->holiday_application_id = $holidayapp->id;
-            $holidayDatetime->holiday_date = $date->format('y-m-d');
-            $holidayDatetime->holiday_time_from = $params['holiday_time_from'] ?? null;
-            $holidayDatetime->holiday_time_to = $params['holiday_time_to'] ?? null;
-            $holidayDatetime->save();
+            foreach ($period as $date) {
+                if (($date->dayOfWeek != 0) && ($date->dayOfWeek != 6) && !($this->yasumiService->isHoliday($date))) {
+                    $holidayDatetime = new HolidayDatetime();
+                    $holidayDatetime->holiday_application_id = $holidayapp->id;
+                    $holidayDatetime->holiday_date = $date->format('y-m-d');
+                    $holidayDatetime->holiday_time_from = $params['holiday_time_from'] ?? null;
+                    $holidayDatetime->holiday_time_to = $params['holiday_time_to'] ?? null;
+                    $holidayDatetime->save();
+                }
             }
-        }
             // DBに保存または削除する
 
         }); // トランザクションここまで
@@ -61,12 +61,14 @@ class HolidayService
         $todate = new Carbon($params['holiday_date_to']);
         $period = CarbonPeriod::create($fromdate, $todate);
         $days = 0;
-
-        foreach($period as $date){
-            if( ($date->dayOfWeek != 0) && ($date->dayOfWeek != 6) && !($this->yasumiService->isHoliday($date)) )
-            {
-                $days++;
+        if ($fromdate <= $todate) {
+            foreach ($period as $date) {
+                if (($date->dayOfWeek != 0) && ($date->dayOfWeek != 6) && !($this->yasumiService->isHoliday($date))) {
+                    $days++;
+                }
             }
+        } else {
+            $days = "エラー";
         }
         return $days;
     }
@@ -75,30 +77,26 @@ class HolidayService
     {
         $previous = Carbon::now()->subYear();
         $previousYasumis = $this->yasumiService->getYasumis(($previous->year));
-        
+
         $now = Carbon::now();
         $thisYasumis = $this->yasumiService->getYasumis($now->year);
 
         $next = Carbon::now()->addYear();
         $nextYasumis = $this->yasumiService->getYasumis($next->year);
 
-        foreach($previousYasumis as $previousYasumi)
-        {
+        foreach ($previousYasumis as $previousYasumi) {
             $yasumis[] = $previousYasumi->format('Y-m-d');
         }
-        
-        
-        foreach($thisYasumis as $thisYasumi)
-        {
+
+
+        foreach ($thisYasumis as $thisYasumi) {
             $yasumis[] = $thisYasumi->format('Y-m-d');
         }
-        
-        foreach($nextYasumis as $nextYasumi)
-        {
+
+        foreach ($nextYasumis as $nextYasumi) {
             $yasumis[] = $nextYasumi->format('Y-m-d');
         }
-        
-        return $yasumis;
 
+        return $yasumis;
     }
 }
