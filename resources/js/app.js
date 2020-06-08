@@ -7,7 +7,11 @@
 
 require('./bootstrap');
 require('./holidayApplication');
-require('./my-timepicker')
+require('./my-timepicker');
+require('admin-lte/dist/js/adminlte');
+
+require('@fortawesome/fontawesome-free/js/all')
+
 
 window.Vue = require('vue');
 

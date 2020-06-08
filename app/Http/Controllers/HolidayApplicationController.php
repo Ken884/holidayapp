@@ -29,6 +29,11 @@ class HolidayApplicationController extends Controller
 
     /**
     */
+    public function index()
+    {
+        return view('holidayHome');
+    }
+
     public function holiday_create(Request $req)
     {
         //home画面に休暇届テーブルを表示(テスト用のため適当に作成)

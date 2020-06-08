@@ -22,7 +22,9 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-Route::get('holiday', 'HolidayApplicationController@holiday_create')->name('holiday_create');
+Route::get('/holiday', 'HolidayApplicationController@index');
+
+Route::get('/holiday/new', 'HolidayApplicationController@holiday_create')->name('holiday_create');
 
 //AJAXでリクエストを受け取り土日祝日を除いた期間の表示
 Route::get('getDuration', 'HolidayApplicationController@duration');

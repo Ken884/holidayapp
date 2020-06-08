@@ -37,7 +37,7 @@ const getBussinessHours = function(start, end){
 }
 
 //JSONで受け取った祝日リストをミリ秒の配列に変換
-const yasumis = $('#holiday_date').data('json').map(yasumi => new Date(`${yasumi} 00:00:00`));
+const yasumis = () => $('#holiday_date').data('json').map(yasumi => new Date(`${yasumi} 00:00:00`));
 
 
 $(function () {
@@ -49,7 +49,8 @@ $(function () {
         locale: 'ja'
     });
     $(document).ready(function(){
-        myTimePicker.initTime($('.timepicker'), '09:00', '18:00', 15);
+        myTimePicker.initTime($('#holiday_time_from'), '09:00', '18:00', 15);
+        myTimePicker.initTime($('#holiday_time_to'), '09:00', '18:00', 15);
         const holidayClass = $('#holiday_class_common_id').val();
         if(holidayClass==1 || holidayClass==3){
             $('.timepicker').prop('disabled', true);
