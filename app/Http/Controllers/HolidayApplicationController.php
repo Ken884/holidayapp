@@ -70,7 +70,7 @@ class HolidayApplicationController extends Controller
         
         $this->holidayService->saveHoliday($params);
 
-        return redirect('home');
+        return redirect('holiday');
     }
 
 }

@@ -3,7 +3,7 @@
 <div class="container">
     <div class="card">
         <div class="card-body">
-            <form method="post" action="{{ url('holiday')}}" autocomplete="off">
+            <form id="holiday_application" method="post" action="{{ url('holiday')}}" autocomplete="off">
 
                 <div class="form-horizontal">
                     <!-- CSRF保護 -->
@@ -79,7 +79,7 @@
                     </div>
                     <div class="row my-4">
                         <div class="col-sm-2 offset-sm-2">
-                            <button class="btn btn-primary btn-block" type="button" onClick="submit();">申請</button>
+                            <button id="submit_holiday"class="btn btn-primary btn-block" type="button">申請</button>
                         </div>
                     </div>
                 </div>
