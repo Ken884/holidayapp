@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HolidayApplicationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\HolidaySaveMiddleware;
 
@@ -22,9 +23,11 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-Route::get('/holiday', 'HolidayApplicationController@index');
+Route::get('/holiday', 'HolidayApplicationController@index')->name('holiday_home');
 
 Route::get('/holiday/new', 'HolidayApplicationController@holiday_create')->name('holiday_create');
+
+Route::get('holiday/{holidayapp}', 'HolidayApplicationController@holiday_show')->name('holiday_show');
 
 //AJAXでリクエストを受け取り土日祝日を除いた期間の表示
 Route::get('getDuration', 'HolidayApplicationController@duration');

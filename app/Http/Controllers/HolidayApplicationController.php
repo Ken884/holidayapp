@@ -14,6 +14,8 @@ use Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\HolidayService;
 use App\Http\Requests\HolidayDurationAjax;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ApplyNotification;
 
 class HolidayApplicationController extends Controller
 {
@@ -31,7 +33,7 @@ class HolidayApplicationController extends Controller
     */
     public function index()
     {
-        return view('holidayHome');
+        return view('holiday/holidayHome');
     }
 
     public function holiday_create(Request $req)
@@ -39,7 +41,7 @@ class HolidayApplicationController extends Controller
         //home画面に休暇届テーブルを表示(テスト用のため適当に作成)
         $yasumiArray = $this->holidayService->getYasumiArray();
         $yasumiArray = json_encode($yasumiArray);
-        return view('holidayApplication', compact('yasumiArray'));
+        return view('holiday/holidayApplication', compact('yasumiArray'));
     }
     
     /*
@@ -70,7 +72,16 @@ class HolidayApplicationController extends Controller
         
         $this->holidayService->saveHoliday($params);
 
+        $to = 'test.mailing.lara@gmail.com';
+        Mail::to($to)->send(new ApplyNotification());
+
         return redirect('holiday');
+    }
+
+    public function holiday_show(HolidayApplication $holidayapp)
+    {
+        //$datetime->$holidayapp->holidayDateTime;
+        return view('holiday/holidayDetail');
     }
 
 }

@@ -11,7 +11,7 @@
             <div class="image">
             </div>
             <div class="info">
-                <a href="#" class="d-block">{{ Auth::user()->name }}</a>
+                <a href="#" class="d-block">{{ Auth::user()->last_name }} {{ Auth::user()->first_name }}</a>
             </div>
         </div>
 
@@ -23,31 +23,71 @@
                 <li class="nav-item has-treeview menu-open">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-th"></i>
-                        <p>
-                            MENU
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
+                        <p> MENU </p>
+                        <i class="right fas fa-angle-left"></i>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             <a href="{{ url('/home') }}" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Home</p>
+                                <p> トップ </p>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="{{ url('/holiday' )}}" class="nav-link">
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Holidays</p>
+                                <p> 休暇届 <i class="right fas fa-angle-left"></i></p>
                             </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ route('holiday_home')}}" class="nav-link">
+                                        <i class="far fa-dot-circle nav-icon"></i>
+                                        <p> 一覧 </p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('holiday_create')}}" class="nav-link">
+                                        <i class="far fa-dot-circle nav-icon"></i>
+                                        <p> 申請 </p>
+                                    </a>
+                                </li>
+                                @can('admin')
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="far fa-dot-circle nav-icon"></i>
+                                        <p> 承認 </p>
+                                    </a>
+                                </li>
+                                @endcan
+                            </ul>
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon far fa-circle"></i>
-                                <p>
-                                    Expences
-                                </p>
+                                <p> 経費精算 <i class="right fas fa-angle-left"></i></p>
                             </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="far fa-dot-circle nav-icon"></i>
+                                        <p> 一覧 </p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="far fa-dot-circle nav-icon"></i>
+                                        <p> 申請 </p>
+                                    </a>
+                                </li>
+                                @can('admin')
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="far fa-dot-circle nav-icon"></i>
+                                        <p> 承認 </p>
+                                    </a>
+                                </li>
+                                @endcan
+                            </ul>
                         </li>
                     </ul>
                 </li>
