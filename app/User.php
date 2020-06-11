@@ -37,7 +37,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function HolidayApplications()
+    public function holiday_applications()
     {
         return $this->hasMany('App\HolidayApplication', 'id');
     }

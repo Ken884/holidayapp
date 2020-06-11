@@ -21,15 +21,20 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::middleware(['auth'])->group(function(){
 
-Route::get('/holiday', 'HolidayApplicationController@index')->name('holiday_home');
+    Route::get('/home', 'HomeController@index')->name('home');
 
-Route::get('/holiday/new', 'HolidayApplicationController@holiday_create')->name('holiday_create');
+    Route::get('/holidayapplications', 'HolidayApplicationController@index')->name('holiday_home');
 
-Route::get('holiday/{holidayapp}', 'HolidayApplicationController@holiday_show')->name('holiday_show');
+    Route::get('/holidayapplications/new', 'HolidayApplicationController@holiday_create')->name('holiday_create');
 
-//AJAXでリクエストを受け取り土日祝日を除いた期間の表示
-Route::get('getDuration', 'HolidayApplicationController@duration');
-//休暇届申請
-Route::post('holiday', 'HolidayApplicationController@saveHolidayApplication')->name('holiday_save')->middleware('auth');
+    Route::get('holidayapplications/{holidayApplication}', 'HolidayApplicationController@holiday_show')->name('holiday_show');
+
+    //AJAXでリクエストを受け取り土日祝日を除いた期間の表示
+    Route::get('getDuration', 'HolidayApplicationController@duration');
+    //休暇届申請
+    Route::post('holiday', 'HolidayApplicationController@saveHolidayApplication')->name('holiday_save');
+});
+
+

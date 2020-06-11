@@ -29,16 +29,23 @@ class HolidayApplicationController extends Controller
      * 申請画面の項目の表示、入力値の保存に関するコントローラ
      */
 
-    /**
+    /*
+    *休暇届のダッシュボードページ。自身の登録した休暇届の一覧を取得
     */
     public function index()
     {
-        return view('holiday/holidayHome');
+        $query = HolidayApplication::query();
+
+        $holidayApplications = HolidayApplication::where('employee_id', Auth::user()->id);
+
+        return view('holiday/holidayHome', compact('holidayApplications'));
     }
 
+    /*
+    *申請画面に祝日の配列を渡す
+    */
     public function holiday_create(Request $req)
     {
-        //home画面に休暇届テーブルを表示(テスト用のため適当に作成)
         $yasumiArray = $this->holidayService->getYasumiArray();
         $yasumiArray = json_encode($yasumiArray);
         return view('holiday/holidayApplication', compact('yasumiArray'));
@@ -78,10 +85,13 @@ class HolidayApplicationController extends Controller
         return redirect('holiday');
     }
 
-    public function holiday_show(HolidayApplication $holidayapp)
+    /*
+     *詳細画面に遷移 
+     */
+    public function holiday_show(HolidayApplication $holidayApplication)
     {
-        //$datetime->$holidayapp->holidayDateTime;
-        return view('holiday/holidayDetail');
+        $datetime = $holidayApplication->holiday_datetimes();
+        return view('holiday/holidayDetail', compact('holidayApplication', 'datetime'));
     }
 
 }

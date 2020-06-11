@@ -38,16 +38,18 @@
                                     <th>理由</th>
                                     <th>備考</th>
                                     <th>申請状況</th>
+                                    <th></th>
                                 </tr>
-                                @foreach(DB::table('holiday_applications')->get() as $row1)
+                                @foreach($holidayApplications->get() as $holidayApplication)
                                 <tr>
-                                    <td>{{$row1->id}}</td>
-                                    <td>{{$row1->employee_id}}</td>
-                                    <td>{{$row1->submit_date}}</td>
-                                    <td>{{$row1->holiday_class_common_id}}</td>
-                                    <td>{{$row1->reason}}</td>
-                                    <td>{{$row1->remarks}}</td>
-                                    <td>{{$row1->appliication_status}}</td>
+                                    <td>{{ $holidayApplication->id }}</td>
+                                    <td>{{ $holidayApplication->employee_id }}</td>
+                                    <td>{{ $holidayApplication->submit_date }}</td>
+                                    <td>{{ $holidayApplication->holiday_class_common_id }}</td>
+                                    <td>{{ $holidayApplication->reason }}</td>
+                                    <td>{{ $holidayApplication->remarks }}</td>
+                                    <td>{{ $holidayApplication->appliication_status }}</td>
+                                    <td><a href="{{  route('holiday_show', $holidayApplication) }}"><button class="btn btn-success">詳細</button></a></td>
                                 </tr>
                                 @endforeach
                             </table>

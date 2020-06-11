@@ -24,16 +24,22 @@
     <link href="{{ asset('css/holidayApplication.css') }}" rel="stylesheet">
 </head>
 
-<body>
+<body class="sidebar-mini layout-fixed">
     <div id="app">
-        @include('layouts.header')
+        <div class="wrapper">
+            @include('layouts.header')
 
 
-        @include('layouts.sidebar')
+            @include('layouts.sidebar')
 
-        <main class="py-4">
-            @yield('content')
-        </main>
+            <section class="content">
+                <main class="py-4">
+                    <div class="col-10 offset-2">
+                        @yield('content')
+                    </div>
+                </main>
+            </section>
+        </div>
     </div>
 </body>
 

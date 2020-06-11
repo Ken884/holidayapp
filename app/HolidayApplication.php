@@ -16,4 +16,14 @@ class HolidayApplication extends Model
         'remarks',
         'appliication_status'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo('App\User');
+    }
+
+    public function holiday_datetimes()
+    {
+        return $this->hasMany('App\HolidayDatetime');
+    }
 }
