@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\HolidayApplication;
 
 use Illuminate\Http\Request;
-use App\HolidayClass;
+use App\Http\Controllers\Controller;
 use App\User;
 use App\HolidayApplication;
 use App\HolidayDatetime;
@@ -73,16 +73,19 @@ class HolidayApplicationController extends Controller
      * 休暇届のデータを｢休暇届テーブル｣と｢休暇日時テーブル｣に保存
      * @param HolidayApplicationPostReq $req バリデーションを通過したリクエストの値
      */
-    public function saveHolidayApplication(HolidayApplicationPostReq $req)
+    public function holiday_store(HolidayApplicationPostReq $req)
     {
         $params = $req->all();
         
         $this->holidayService->saveHoliday($params);
 
+        /*
+         *メール送信機能
         $to = 'test.mailing.lara@gmail.com';
         Mail::to($to)->send(new ApplyNotification());
+        */
 
-        return redirect('holiday');
+        return redirect('holidayapplications');
     }
 
     /*
@@ -90,7 +93,7 @@ class HolidayApplicationController extends Controller
      */
     public function holiday_show(HolidayApplication $holidayApplication)
     {
-        $datetime = $holidayApplication->holiday_datetimes();
+        $datetime = $holidayApplication->holiday_datetimes()->get();
         return view('holiday/holidayDetail', compact('holidayApplication', 'datetime'));
     }
 

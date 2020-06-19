@@ -22,7 +22,7 @@
                         <div class="card-header">Information</div>
                         <div class="card-body">
                             <p>これから考える</p>
-                            <a href="{{ route('holiday_create') }}"><button class="btn btn-primary">新規作成</button></a>
+                            <a href="{{ route('expense_create') }}"><button class="btn btn-primary">新規作成</button></a>
                         </div>
                     </div>
                     <div class="card">
@@ -34,22 +34,17 @@
                                     <th>従業員ID</th>
                                     <th>提出日</th>
                                     <th>休暇種別</th>
-                                    <th>理由</th>
-                                    <th>備考</th>
                                     <th>申請状況</th>
                                     <th></th>
                                 </tr>
                                 
-                                @foreach($holidayApplications->get() as $holidayApplication)
+                                @foreach($expenseApplications->get() as $expenseApplication)
                                 <tr>
-                                    <td>{{ $holidayApplication->id }}</td>
-                                    <td>{{ $holidayApplication->employee_id }}</td>
-                                    <td>{{ $holidayApplication->submit_datetime }}</td>
-                                    <td>{{ $holidayApplication->holiday_type->holiday_type_name }}</td>
-                                    <td>{{ $holidayApplication->reason }}</td>
-                                    <td>{{ $holidayApplication->remarks }}</td>
-                                    <td>{{ $holidayApplication->application_status->application_status_name }}</td>
-                                    <td><a href="{{  route('holiday_show', $holidayApplication) }}"><button class="btn btn-success">詳細</button></a></td>
+                                    <td>{{ $expenseApplication->id }}</td>
+                                    <td>{{ $expenseApplication->employee_id }}</td>
+                                    <td>{{ $expenseApplication->submit_datetime }}</td>
+                                    <td>{{ $expenseApplication->application_status->application_status_name }}</td>
+                                    <td><a href="{{  route('expense_show', $expenseApplication) }}"><button class="btn btn-success">詳細</button></a></td>
                                 </tr>
                                 @endforeach
                             </table>

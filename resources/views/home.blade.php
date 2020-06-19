@@ -4,7 +4,6 @@
     <div class="row justify-content-center">
         <div class="col-12">
             <div class="card card-tabs">
-                <div class="card-header"></div>
                 <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
                     <li class="nav-item">
                         <a class="nav-link active" id="custom-tabs-one-home-tab" data-toggle="pill" href="#custom-tabs-one-home" role="tab" aria-controls="custom-tabs-one-home" aria-selected="true">
@@ -36,11 +35,11 @@
                                 <tr>
                                     <td>{{$row1->id}}</td>
                                     <td>{{$row1->employee_id}}</td>
-                                    <td>{{$row1->submit_date}}</td>
-                                    <td>{{$row1->holiday_class_common_id}}</td>
+                                    <td>{{$row1->submit_datetime}}</td>
+                                    <td>{{$row1->holiday_type_id}}</td>
                                     <td>{{$row1->reason}}</td>
                                     <td>{{$row1->remarks}}</td>
-                                    <td>{{$row1->appliication_status}}</td>
+                                    <td>{{$row1->application_status_id}}</td>
                                 </tr>
                                 @endforeach
                             </table>

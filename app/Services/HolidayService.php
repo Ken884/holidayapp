@@ -26,11 +26,11 @@ class HolidayService
             //休暇届テーブルにデータを保存
             $holidayapp = new HolidayApplication;
             $holidayapp->employee_id = Auth::id();
-            $holidayapp->submit_date = Carbon::now();
-            $holidayapp->holiday_class_common_id = $params['holiday_class_common_id'];
+            $holidayapp->submit_datetime = Carbon::now();
+            $holidayapp->holiday_type_id = $params['holiday_type_id'];
             $holidayapp->reason = $params['reason'];
             $holidayapp->remarks = $params['remarks'];
-            $holidayapp->appliication_status = 0;
+            $holidayapp->application_status_id = 1;
             //dd($holidayapp);
             $holidayapp->save();
 

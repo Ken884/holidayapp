@@ -10,11 +10,13 @@ class HolidayApplication extends Model
 
     protected $fillable = [
         'employee_id',
-        'submit_date',
-        'holiday_class_common_id',
+        'submit_datetime',
+        'holiday_type_id',
         'reason',
         'remarks',
-        'appliication_status'
+        'appliication_status_id',
+        'denied_reason',
+        'cancelled_reason'
     ];
 
     public function user()
@@ -25,5 +27,15 @@ class HolidayApplication extends Model
     public function holiday_datetimes()
     {
         return $this->hasMany('App\HolidayDatetime');
+    }
+
+    public function holiday_type()
+    {
+        return $this->belongsTo('App\HolidayType');
+    }
+
+    public function application_status()
+    {
+        return $this->belongsTo('App\ApplicationStatus');
     }
 }

@@ -177,6 +177,8 @@ return [
         App\Providers\RouteServiceProvider::class,
         /*Validation*/
         App\Providers\AppValidateProvider::class,
+        //Collection
+        App\Providers\CollectionMacroServiceProvider::class,
 
     ],
 

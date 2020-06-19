@@ -7,6 +7,7 @@
 
 require('./bootstrap');
 require('./holidayApplication');
+require('./expenseApplication')
 require('./my-timepicker');
 require('admin-lte/dist/js/adminlte');
 

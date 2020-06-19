@@ -15,10 +15,13 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('last_name')->comment('姓');
-            $table->string('first_name')->comment('名');
-            $table->unsignedInteger('role')->default(1)->comment('権限');
-            $table->string('email')->unique();
+            $table->unsignedInteger('post_id')->default(6)->foreign()->references('id')->on('posts');
+            $table->unsignedInteger('department_id')->default(1)->foreign()->references('id')->on('departments');
+            $table->unsignedInteger('role_id')->default(3)->foreign()->references('id')->on('roles');
+            $table->string('last_name', 20)->comment('姓');
+            $table->string('first_name', 20)->comment('名');
+            $table->string('email', 50)->unique();
+            $table->date('hired_date')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

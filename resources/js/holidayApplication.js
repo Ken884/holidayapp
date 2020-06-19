@@ -28,13 +28,16 @@ const getBussinessHours = function (start, end) {
 /*
  *JSONで受け取った祝日リストをミリ秒の配列に変換
  */
-const yasumis = () => $('#holiday_date').data('json').map(yasumi => new Date(`${yasumi} 00:00:00`));
+const yasumis = () => {
+    const yasumisData = $('#holiday_date').data('json') || [];
+    return yasumisData.map(yasumi => new Date(`${yasumi} 00:00:00`));
+}
 
 
 $(function () {
     $('.datepicker').datetimepicker({
         useCurrent: false,
-        format: 'YYYY-MM-DD(dd)',
+        format: 'YYYY-MM-DD',
         disabledDates: yasumis(),
         daysOfWeekDisabled: [0, 6],
         locale: 'ja'

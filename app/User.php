@@ -39,6 +39,32 @@ class User extends Authenticatable
 
     public function holiday_applications()
     {
-        return $this->hasMany('App\HolidayApplication', 'id');
+        return $this->hasMany('App\HolidayApplication');
     }
+
+    public function expense_applications()
+    {
+        return $this->hasMany('App\ExpenseApplication');
+    }
+
+    public function paid_holidays()
+    {
+        return $this->hasMany('App\PaidHoliday');
+    }
+
+    public function post()
+    {
+        return $this->belongsTo('App\Post');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo('App\Department');
+    }
+
+    public function role()
+    {
+        return $this->belongsTo('App\Role');
+    }
+
 }

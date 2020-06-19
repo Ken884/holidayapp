@@ -15,33 +15,47 @@ class CreateHolidayApplicationsTable extends Migration
     {
         Schema::create('holiday_applications', function (Blueprint $table) {
             //ID(自動採番）
-            $table->increments('id')
+            $table->bigIncrements('id')
                 ->comment('id');
-            //従業員ID
-            $table->unsignedInteger('employee_id')
+
+            //従業員ID FK
+            $table->unsignedInteger('employee_id')->foreign()->references('id')->on('users')
                 ->comment('従業員ID');
+
             //提出日
-            $table->date('submit_date')
+            $table->dateTime('submit_datetime')
                 ->comment('提出日');
-            //休暇区分
-            $table->unsignedInteger('holiday_class_common_id')
-                ->comment('休暇区分');
+
+            //休暇区分 FK
+            $table->unsignedInteger('holiday_type_id')->foreign()->references('id')->on('holiday_types')
+                ->comment('休暇種別ID');
+
             //理由
             $table->string('reason', 255)
                 ->comment('理由');
+
             //備考
             $table->string('remarks', 255)
                 ->nullable()
                 ->comment('備考');
 
-            //申請状況
-            $table->unsignedInteger('appliication_status')
+            //申請状況 FK
+            $table->unsignedInteger('application_status_id')->foreign()->references('id')->on('application_statuses')
             ->comment('申請状況');
 
+            //否認理由
+            $table->string('denied_reason')->nullable()
+            ->comment('否認理由');
+
+            //取下理由
+            $table->string('cancelled_reason')->nullable()
+            ->comment('取下理由');
+
+            //複合ユニークキー制約
+            $table->unique(['employee_id', 'submit_datetime']);
+
             $table->timestamps();
-            //外部キー設定
-            $table->foreign('employee_id')->references('id')->on('users');
-            $table->foreign('holiday_class_common_id')->references('id')->on('common_class_master');
+         
        });
     }
 

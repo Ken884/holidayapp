@@ -3,7 +3,7 @@
 <div class="container">
     <div class="card">
         <div class="card-body">
-            <form id="holiday_application" method="post" action="{{ url('holiday')}}" autocomplete="off">
+            <form id="holiday_application" method="post" action="{{ url('holidayapplications/new')}}" autocomplete="off">
 
                 <div class="form-horizontal">
                     <!-- CSRF保護 -->
@@ -13,9 +13,9 @@
                             <label class="mt-2">区分</label>
                         </div>
                         <div class="col-4 col-sm-2 my-2 mx-2">
-                            <select id="holiday_class_common_id" name="holiday_class_common_id" class="form-control">
-                                @foreach(\App\HolidayClass::all() as $holidayClass)
-                                <option value="{{ $holidayClass->id }}" @if(old('holiday_class_common_id')==$holidayClass->id )selected @endif>{{$holidayClass->class_content}}</option>
+                            <select id="holiday_class_common_id" name="holiday_type_id" class="form-control">
+                                @foreach(\App\HolidayType::all() as $holiday_type)
+                                <option value="{{ $holiday_type->id }}" @if(old('holiday_type_id')==$holiday_type->id )selected @endif>{{$holiday_type->holiday_type_name}}</option>
                                 @endforeach
                             </select>
                         </div>

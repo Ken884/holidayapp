@@ -68,13 +68,13 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="#" class="nav-link">
+                                    <a href="{{ route('expense_home') }}" class="nav-link">
                                         <i class="far fa-dot-circle nav-icon"></i>
                                         <p> 一覧 </p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#" class="nav-link">
+                                    <a href="{{ route('expense_create') }}" class="nav-link">
                                         <i class="far fa-dot-circle nav-icon"></i>
                                         <p> 申請 </p>
                                     </a>

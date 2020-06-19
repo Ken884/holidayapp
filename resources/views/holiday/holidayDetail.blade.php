@@ -8,7 +8,7 @@
                     <label class="mt-2">区分</label>
                 </div>
                 <div class="col-4 col-sm-2 my-2 mx-2">
-                    <input type="text" id="holiday_class" name="holiday_class" value="{{ $holidayApplication->id}}" class="form-control"readonly>
+                    <input type="text" id="holiday_class" name="holiday_class" value="{{ $holidayApplication->holiday_type->holiday_type_name}}" class="form-control"readonly>
                 </div>
             </div>
             <div class="row">
@@ -17,9 +17,11 @@
                 </div>
                 <div class="col-sm-9">
                     <div class="form-inline" id="holiday_date">
-                        <input id="holiday_date_from" type="text" name="holiday_date_from" value="" class="col-5 col-sm-3 form-control mx-2">
+                        <input id="holiday_date_from" type="text" name="holiday_date_from" 
+                        value="{{ $datetime->sortBy('holiday_date')->first()->holiday_date }}" readonly class="col-5 col-sm-3 form-control mx-2">
                         <label> ～ </label>
-                        <input id="holiday_date_to" type="text" name="holiday_date_to" value="" class="col-5 col-sm-3 form-control mx-2">
+                        <input id="holiday_date_to" type="text" name="holiday_date_to" 
+                        value="{{ $datetime->sortBy('holiday_date')->last()->holiday_date }}" readonly class="col-5 col-sm-3 form-control mx-2">
 
                         <div class="input-group my-2 col-5 col-sm-2 p-0 mx-2">
                             <input id="holiday_days" type="text" name="holiday_days" value="" readonly class="form-control">
@@ -36,9 +38,9 @@
                 </div>
                 <div class="col-sm-9">
                     <div class="form-inline">
-                        <input id="holiday_time_from" name="holiday_time_from" class="col-5 col-sm-3 form-control mx-2">
+                        <input id="holiday_time_from" name="holiday_time_from" value="{{ $datetime->first()->holiday_time_from }}" readonly class="col-5 col-sm-3 form-control mx-2">
                         <label> ～ </label>
-                        <input id="holiday_time_to" name="holiday_time_to" value="" class="col-5 col-sm-3 form-control  mx-2">
+                        <input id="holiday_time_to" name="holiday_time_to" value="{{ $datetime->first()->holiday_time_to }}" readonly class="col-5 col-sm-3 form-control  mx-2">
                         <div class="input-group my-2 col-5 col-sm-2 p-0 mx-2">
                             <input type="text" id="holiday_hours" name="holiday_hours" readonly class="form-control ">
                             <div class="input-group-append">
@@ -65,8 +67,8 @@
                 </div>
             </div>
             <div class="row my-4">
-                <div class="col-sm-2 offset-sm-2">
-                    <button id="notyet" class="btn btn-primary btn-block" type="button">Button</button>
+                <div class="col-sm-2 offset-sm-5">
+                    <a href="#"><button id="notyet" class="btn btn-primary btn-block" type="button">修正</button></a>
                 </div>
             </div>
         </div>
