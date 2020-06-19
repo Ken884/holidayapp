@@ -3,7 +3,7 @@
 <div class="container">
     <div class="card">
         <div class="card-body">
-
+            <form>
                 <div class="form-horizontal">
                     <!-- CSRF保護 -->
                     @csrf
@@ -53,10 +53,20 @@
                     </div>
                 </div>
                 <div class="row my-2">
+                    @can('my_expense', $expenseApplication)
                     <div class="col-sm-2 offset-sm-5">
-                        <a href="{{ route('expense_edit', $expenseApplication) }}"><button  class="btn btn-primary btn-block" type="button">修正</button></a>
+                        <a href="{{ route('expense_edit', $expenseApplication) }}"><button  class="btn btn-primary btn-block edit" type="button">修正</button></a>
                     </div>
+                    @elsecan('admin')
+                    <div class="col-sm-2 offset-sm-4">
+                        <button class="btn btn-primary btn-block authorize">承認</button>
+                    </div>
+                    <div class="col-sm-2">
+                        <button class="btn btn-danger btn-block decline">否認</button>
+                    </div>
+                    @endcan
                 </div>
+            </form>
         </div>
     </div>
 </div>

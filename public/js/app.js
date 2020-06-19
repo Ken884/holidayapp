@@ -90051,8 +90051,12 @@ __webpack_require__(/*! bootstrap4-datetimepicker/build/js/bootstrap-datetimepic
 
 var Swal = __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js");
 
-var moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js"); //ボタン押下によって動的テーブルの属性を変更する関数
+var moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
 
+var _require = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js"),
+    data = _require.data;
+
+console.log($('tr').length); //ボタン押下によって動的テーブルの属性を変更する関数
 
 var alterRowAttr = function alterRowAttr(table) {
   //行数に応じて動的に削除ボタンの表示を切替
@@ -90087,7 +90091,7 @@ $(function () {
   }); //ページ読み込み時に明細1行目をレンダリング
 
   $(document).ready(function () {
-    if ($('.is-invalid').length == 0) {
+    if ($('.is-invalid').length == 0 && $('[name="expense_id"]').data('mode') == 'new') {
       $('.dynamic-table .addRow').click();
     }
   }); // 動的テーブルに行の追加・削除ボタンを追加する

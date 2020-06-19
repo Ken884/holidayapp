@@ -18,17 +18,21 @@ class ExpenseService
 
         DB::transaction(function () use ($params) {
             
-            //経費精算書テーブルにデータを保存
+            //経費精算書テーブルの登録・更新
             
-            $expenseapp = new ExpenseApplication;
+            $expenseapp = ExpenseApplication::findOrNew($params['expense_id']);
             $expenseapp->employee_id = Auth::id();
             $expenseapp->submit_datetime = Carbon::now();
             $expenseapp->remarks = $params['remarks'];
-            $expenseapp->application_status_id = 1;
+            $expenseapp->application_status_id = $expenseapp->application_status_id ?? 1;
             $expenseapp->save();
             
             
-            //経費明細テーブルにデータを保存
+            //経費明細テーブルの登録・更新
+            if (ExpenseStatement::where('expense_id', $expenseapp->id)->exists()) {
+                ExpenseStatement::where('expense_id', $expenseapp->id)->delete();
+            }
+
             $esparams = [
                 'statement_number' => $params['statement_number'],
                 'occurred_date' => $params['occurred_date'],
@@ -36,10 +40,11 @@ class ExpenseService
                 'expense_type_id' => $params['expense_type_id'],
                 'amount'=> $params['amount']
             ];
+
             $records = collect($esparams)->transpose();
 
             foreach ($records as $record) {
-                $es = new ExpenseStatement();
+                $es = new ExpenseStatement;
                 $es->expense_id = $expenseapp->id;
                 $es->statement_number = $record['statement_number'];
                 $es->occurred_date = $record['occurred_date'];

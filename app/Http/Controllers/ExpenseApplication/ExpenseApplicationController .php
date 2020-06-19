@@ -33,7 +33,8 @@ class ExpenseApplicationController extends Controller
     public function expense_create()
     {
         $expenseApplication = new ExpenseApplication;
-        return view ('expense/expenseApplication', compact('expenseApplication'));
+        $mode = 'new';
+        return view ('expense/expenseApplication', compact('expenseApplication', 'mode'));
     }
 
     /**
@@ -68,7 +69,8 @@ class ExpenseApplicationController extends Controller
     public function expense_edit(ExpenseApplication $expenseApplication)
     {
         $statements = $expenseApplication->expense_statements()->get();
-        return view('expense/expenseApplication', compact('expenseApplication', 'statements'));
+        $mode = 'edit';
+        return view('expense/expenseApplication', compact('expenseApplication', 'statements', 'mode'));
     }
     
 

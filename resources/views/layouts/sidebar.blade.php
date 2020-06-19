@@ -33,7 +33,7 @@
                                 <p> トップ </p>
                             </a>
                         </li>
-                        <li class="nav-item has-treeview">
+                        <li class="nav-item has-treeview menu-open">
                             <a href="#" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p> 休暇届 <i class="right fas fa-angle-left"></i></p>

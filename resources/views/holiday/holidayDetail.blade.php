@@ -17,10 +17,10 @@
                 </div>
                 <div class="col-sm-9">
                     <div class="form-inline" id="holiday_date">
-                        <input id="holiday_date_from" type="text" name="holiday_date_from" 
+                        <input id="first_date" type="text" name="holiday_date_from" 
                         value="{{ $datetime->sortBy('holiday_date')->first()->holiday_date }}" readonly class="col-5 col-sm-3 form-control mx-2">
                         <label> ～ </label>
-                        <input id="holiday_date_to" type="text" name="holiday_date_to" 
+                        <input id="last_date" type="text" name="holiday_date_to" 
                         value="{{ $datetime->sortBy('holiday_date')->last()->holiday_date }}" readonly class="col-5 col-sm-3 form-control mx-2">
 
                         <div class="input-group my-2 col-5 col-sm-2 p-0 mx-2">

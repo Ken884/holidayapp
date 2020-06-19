@@ -8,7 +8,9 @@ require('./bootstrap');
 require('bootstrap4-datetimepicker/build/js/bootstrap-datetimepicker.min');
 const Swal = require('sweetalert2')
 var moment = require('moment');
+const { data } = require('jquery');
 
+console.log($('tr').length);
 //ボタン押下によって動的テーブルの属性を変更する関数
 const alterRowAttr = table => {
 
@@ -53,7 +55,7 @@ $(function () {
 
   //ページ読み込み時に明細1行目をレンダリング
   $(document).ready(function () {
-    if($('.is-invalid').length == 0){
+    if($('.is-invalid').length == 0 && $('[name="expense_id"]').data('mode') == 'new') {
       $('.dynamic-table .addRow').click();
     }
   });
