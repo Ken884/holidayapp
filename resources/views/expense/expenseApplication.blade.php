@@ -34,8 +34,8 @@
                             <tr class="d-none template">
                                 <div class="form-group form-group-norrow" class="form-control">
                                     <div><input name="expense_id" value="{{ $expenseApplication->id }}" data-mode="{{ $mode }}"hidden></div>
-                                    <td><input type="text" name="statement_number[]" readonly class="form-control" disabled></td>
-                                    <td><input type="text" name="occurred_date[]" class="e-datepicker form-control" disabled></td>
+                                    <td><input type="text" name="statement_number[]" readonly class="form-control dynamic-num" disabled></td>
+                                    <td><input type="text" name="occurred_date[]" class="e-datepicker form-control dynamic-dp" disabled></td>
                                     <td><textarea style="width:100%" name="statement[]" class="form-control" disabled></textarea></td>
                                     <td><select name="expense_type_id[]" style="width:100%" class="form-control" disabled>
                                             @foreach(App\ExpenseType::all() as $expense)
@@ -90,7 +90,7 @@
                 </div>
                 <div class="row my-2">
                     <div class="col-sm-2 offset-sm-5">
-                        <button type="submit" class="btn btn-primary btn-block" type="button">申請</button>
+                        <button id="submit_expense" type="submit" class="btn btn-primary btn-block" type="button">申請</button>
                     </div>
                 </div>
             </form>

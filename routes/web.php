@@ -53,6 +53,11 @@ Route::middleware(['auth'])->group(function(){
 
         //経費精算書申請
         Route::post('expenseapplications/new', 'ExpenseApplicationController@expense_store')->name('expense_store');
+
+        //管理者のみアクセス可能
+        Route::middleware('can:admin')->group(function() {
+            Route::post('expenseapplication/show/{expenseApplication}', 'ExpenseApplicationController@expense_authorize')->name('authorize');
+        });
     });
 });
 

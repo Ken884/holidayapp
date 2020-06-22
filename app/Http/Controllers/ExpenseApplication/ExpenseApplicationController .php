@@ -65,7 +65,7 @@ class ExpenseApplicationController extends Controller
         return view('expense/expenseDetail', compact('expenseApplication', 'statements'));
     }
 
-    
+    //修正画面に遷移
     public function expense_edit(ExpenseApplication $expenseApplication)
     {
         $statements = $expenseApplication->expense_statements()->get();
@@ -73,5 +73,15 @@ class ExpenseApplicationController extends Controller
         return view('expense/expenseApplication', compact('expenseApplication', 'statements', 'mode'));
     }
     
+    public function expense_authorize(Request $params)
+    {
+        if($params['authorization'] == 'authorized') {
+            $this->expenseService->authorize($params);
+        } else {
+            $this->expenseService->decline($params);
+        }
+
+        return redirect('expenseapplications');
+    }
 
 }

@@ -3,7 +3,7 @@
 <div class="container">
     <div class="card">
         <div class="card-body">
-            <form>
+            <form id="expense_show" data-href="{{ route('authorize', $expenseApplication) }}">
                 <div class="form-horizontal">
                     <!-- CSRF保護 -->
                     @csrf
@@ -12,7 +12,7 @@
                             <label>提出日</label>
                         </div>
                         <div class="col-sm-2">
-                            <input type="text" id="submit_datetime" style="text-align:center" name="submit_datetime" class="form-control mr-2" readonly>
+                            <input type="text" id="submit_datetime" style="text-align:center" value="{{ $expenseApplication->submit_datetime }}" class="form-control mr-2" readonly>
                         </div>
                     </div>
                 </div>
@@ -32,12 +32,14 @@
                         <tbody>
                             @foreach($statements as $statement)
                             <tr>
+                                <div hidden><input name='expense_id' value="{{ $expenseApplication->id }}"></div>
+                                <div hidden><input class="authorization"></div>
                                 <div class="form-group form-group-norrow" class="form-control">
-                                    <td><input type="text" name="statement_number" value="{{ $statement->statement_number }}" readonly class="form-control" readonly></td>
-                                    <td><input type="text" name="occurred_date" value="{{ $statement->occurred_date }}" class="form-control" readonly></td>
-                                    <td><textarea style="width:100%" name="statement" class="form-control" readonly>{{ $statement->statement }}</textarea></td>
-                                    <td><input name="expense_type_id" value="{{ $statement->expense_type->expense_type_name }}" class="form-control" readonly></td>
-                                    <td><input type="text" value="{{ $statement->amount }}" name="amount" class="form-control" readonly></td>
+                                    <td><input type="text" name="statement_number[]" value="{{ $statement->statement_number }}" readonly class="form-control" readonly></td>
+                                    <td><input type="text" name="occurred_date[]" value="{{ $statement->occurred_date }}" class="form-control" readonly></td>
+                                    <td><textarea style="width:100%" name="statement[]" class="form-control" readonly>{{ $statement->statement }}</textarea></td>
+                                    <td><input name="expense_type_id[]" value="{{ $statement->expense_type->expense_type_name }}" class="form-control" readonly></td>
+                                    <td><input type="text" value="{{ $statement->amount }}" name="amount[]" class="form-control" readonly></td>
                                 </div>
                             </tr>
                             @endforeach
@@ -59,10 +61,10 @@
                     </div>
                     @elsecan('admin')
                     <div class="col-sm-2 offset-sm-4">
-                        <button class="btn btn-primary btn-block authorize">承認</button>
+                        <button type="button" class="btn btn-primary btn-block authorize">承認</button>
                     </div>
                     <div class="col-sm-2">
-                        <button class="btn btn-danger btn-block decline">否認</button>
+                        <button type="button" class="btn btn-danger btn-block decline">否認</button>
                     </div>
                     @endcan
                 </div>

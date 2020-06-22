@@ -8,6 +8,7 @@ require('./bootstrap');
 require('bootstrap4-datetimepicker/build/js/bootstrap-datetimepicker.min');
 require('jquery-timepicker/jquery.timepicker');
 require('./my-timepicker');
+require('./form-util')
 const Swal = require('sweetalert2')
 var moment = require('moment');
 
@@ -25,91 +26,72 @@ const getBussinessHours = function (start, end) {
         return 'エラー';
     }
 }
-/*
- *JSONで受け取った祝日リストをミリ秒の配列に変換
- */
-const yasumis = () => {
-    const yasumisData = $('#holiday_date').data('json') || [];
-    return yasumisData.map(yasumi => new Date(`${yasumi} 00:00:00`));
+
+//timepicker変更時に上記の差の時間を表示する
+const showBusinessHours = () => {
+    if ($('#holiday_time_to').val() != '' && $('#holiday_time_from').val() != '') {
+        $('#holiday_hours').val(getBussinessHours($('#holiday_time_from').val(), $('#holiday_time_to').val()))
+    }
 }
 
+//Ajax通信で休暇日数を取得し表示する関数
+const showBusinessDays = () => {
+    if ($('#holiday_date_from').val() != '' && ($('#holiday_date_to').val() != '')) {
+        $.ajax({
+            url: '/getDuration',
+            type: 'GET',
+            data: {
+                'holiday_date_from': $('#holiday_date_from').val(),
+                'holiday_date_to': $('#holiday_date_to').val()
+            }
+        }).done(data => $('#holiday_days').val(data));
+    }
+};
+
+//休暇種別による活性コントロール関数
+const controlDateTime = () => {
+    const holidayType = $('#holiday_type_id').val();
+        if (holidayType == 1 || holidayType == 3 || holidayType == 4) {
+            $('.timepicker').prop('disabled', true);
+            $('.datepicker').prop('disabled', false);
+            $('.timepicker').val(null);
+            $('#holiday_hours').val(null);
+            showBusinessDays();
+
+        } else {
+            $('#holiday_date_from').prop('disabled', false);
+            $('#holiday_date_to').prop('disabled', true);
+            $('.timepicker').prop('disabled', false);
+            $('#holiday_date_to').val(null);
+            $('#holiday_days').val(null);
+            showBusinessHours();
+        }
+};
 
 $(function () {
-    $('.datepicker').datetimepicker({
-        useCurrent: false,
-        format: 'YYYY-MM-DD',
-        disabledDates: yasumis(),
-        daysOfWeekDisabled: [0, 6],
-        locale: 'ja'
-    });
+    //datepicker初期化
+    $('.datepicker').datetimepicker(initDatepicker.optWithHolidays);
+
+    //画面初期化
     $(document).ready(function () {
         myTimePicker.initTime($('#holiday_time_from'), '09:00', '18:00', 15);
         myTimePicker.initTime($('#holiday_time_to'), '09:00', '18:00', 15);
-        const holidayClass = $('#holiday_class_common_id').val();
-        if (holidayClass == 1 || holidayClass == 3) {
-            $('.timepicker').prop('disabled', true);
-            $('.datepicker').prop('disabled', false);
-            $('.timepicker').val(null);
-            $('#holiday_hours').val(null);
+        controlDateTime();
+    });
 
-        } else {
-            $('#holiday_date_from').prop('disabled', false);
-            $('#holiday_date_to').prop('disabled', true);
-            $('.timepicker').prop('disabled', false);
-            $('#holiday_date_to').val(null);
-            $('#holiday_days').val(null);
-            if ($('#holiday_time_to').val() != '' && $('#holiday_time_from').val() != '') {
-                $('#holiday_hours').val(getBussinessHours($('#holiday_time_from').val(), $('#holiday_time_to').val()))
-            }
-        }
+    //種別のonClickイベント
+    $('#holiday_type_id').on('change', function () {
+        controlDateTime();
     });
-    $('#holiday_class_common_id').on('change', function () {
-        const holidayClass = $('#holiday_class_common_id').val();
-        if (holidayClass == 1 || holidayClass == 3) {
-            $('.timepicker').prop('disabled', true);
-            $('.datepicker').prop('disabled', false);
-            $('.timepicker').val(null);
-            $('#holiday_hours').val(null);
 
-        } else {
-            $('#holiday_date_from').prop('disabled', false);
-            $('#holiday_date_to').prop('disabled', true);
-            $('.timepicker').prop('disabled', false);
-            $('#holiday_date_to').val(null);
-            $('#holiday_days').val(null);
-        }
-    });
-    $('.datepicker').on('dp.change', function () {
-        if ($('#holiday_date_from').val() != '' && ($('#holiday_date_to').val() != '')) {
-            $.ajax({
-                url: '/getDuration',
-                type: 'GET',
-                data: {
-                    'holiday_date_from': $('#holiday_date_from').val(),
-                    'holiday_date_to': $('#holiday_date_to').val()
-                }
-            }).done(data => $('#holiday_days').val(data));
-        }
-    });
-    $('.timepicker').on('change', function () {
-        if ($('#holiday_time_to').val() != '' && $('#holiday_time_from').val() != '') {
-            $('#holiday_hours').val(getBussinessHours($('#holiday_time_from').val(), $('#holiday_time_to').val()))
-        }
-    });
+    //日付のonClickイベント
+    $('.datepicker').on('dp.change', function() { showBusinessDays() });
+
+    //時間のonClickイベント
+    $('.timepicker').on('change', function() { showBusinessHours() });
+    //スペルチェックをさせない
     $("input[type='text'], textarea").attr('spellcheck', false);
-    $('#submit_holiday').on('click', function () {
-        Swal.fire({
-            title: 'この内容で登録しますか？',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'はい',
-            cancelButtonText: 'いいえ'
-        }).then((result) => {
-            if(result.value){
-                $('#holiday_application').submit();
-            }
-        })
-    });
+
+    //申請押下時ダイアログ表示
+    $('#submit_holiday').on('click', function() { dialogs.showDialog($('#holiday_application')) });
 });

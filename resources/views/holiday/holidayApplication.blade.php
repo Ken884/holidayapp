@@ -13,7 +13,7 @@
                             <label class="mt-2">区分</label>
                         </div>
                         <div class="col-4 col-sm-2 my-2 mx-2">
-                            <select id="holiday_class_common_id" name="holiday_type_id" class="form-control">
+                            <select id="holiday_type_id" name="holiday_type_id" class="form-control">
                                 @foreach(\App\HolidayType::all() as $holiday_type)
                                 <option value="{{ $holiday_type->id }}" @if(old('holiday_type_id')==$holiday_type->id )selected @endif>{{$holiday_type->holiday_type_name}}</option>
                                 @endforeach
@@ -25,7 +25,8 @@
                             <label class="mt-3">期間</label>
                         </div>
                         <div class="col-sm-9">
-                            <div class="form-inline" id="holiday_date" data-json="{{ $yasumiArray }}">
+                            <div id ="yasumi" data-json="{{ $yasumiArray }}" hidden></div>
+                            <div class="form-inline" id="holiday_date">
                                 <input id="holiday_date_from" type="text" name="holiday_date_from" value="{{ DateTimeHelper::parseDate(old('holiday_date_from')) }}" class="col-5 col-sm-3 form-control datepicker mx-2 @error('holiday_date_from') is-invalid @enderror">
                                 <label> ～ </label>
                                 <input id="holiday_date_to" type="text" name="holiday_date_to" value="{{ DateTimeHelper::parseDate(old('holiday_date_to')) }}" class="col-5 col-sm-3 form-control datepicker mx-2 @error('holiday_date_to') is-invalid @enderror">

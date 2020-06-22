@@ -90049,53 +90049,369 @@ __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
 __webpack_require__(/*! bootstrap4-datetimepicker/build/js/bootstrap-datetimepicker.min */ "./node_modules/bootstrap4-datetimepicker/build/js/bootstrap-datetimepicker.min.js");
 
-var Swal = __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js");
+__webpack_require__(/*! ./form-util */ "./resources/js/form-util.js");
+
+__webpack_require__(/*! ./table-util */ "./resources/js/table-util.js");
 
 var moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
 
 var _require = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js"),
     data = _require.data;
 
-console.log($('tr').length); //ボタン押下によって動的テーブルの属性を変更する関数
+$(function () {
+  //申請画面関連  
+  //提出日にシステム日付を表示
+  $("[name='submit_datetime']").val(moment(new Date()).format('YYYY-MM-DD')); //動的テーブルイニシャライズ
+
+  tableUtil.dynamics(); //生成された明細行の発生日をdatetimepickerとしてイニシャライズ
+
+  $(document).on('focus', '.e-datepicker', function () {
+    $(this).datetimepicker(initDatepicker.opt);
+  }); //新規作成画面読み込み時に明細1行目をレンダリング
+
+  $(document).ready(function () {
+    if ($('.is-invalid').length == 0 && $('[name="expense_id"]').data('mode') == 'new') {
+      $('.dynamic-table .addRow').click();
+    }
+  }); //申請押下時ダイアログを表示
+
+  $('#submit_expense').on('click', function () {
+    dialogs.showDialog();
+  }); //詳細画面関連
+  //管理者用・承認ボタン
+
+  $('.authorize').on('click', function () {
+    formUtil.alterAttr($('.authorization'), 'authorization', 'authorized');
+    dialogs.showDialogAndDo($('#expense_show'), '承認しますか？', function () {
+      return formUtil.customSubmit($('#expense_show'), 'post', $('#expense_show').data('href'));
+    });
+  }); //否認ボタン
+
+  $('.decline').on('click', function () {
+    formUtil.alterAttr($('.authorization'), 'authorization', 'declined');
+    dialogs.showDialogAndDo($('#expense_show'), '否認しますか？', function () {
+      return formUtil.customSubmit($('#expense_show'), 'post', $('#expense_show').data('href'));
+    });
+  });
+});
+
+/***/ }),
+
+/***/ "./resources/js/form-util.js":
+/*!***********************************!*\
+  !*** ./resources/js/form-util.js ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * First we will load all of this project's JavaScript dependencies which
+ * includes Vue and other libraries. It is a great starting point when
+ * building robust, powerful web applications using Vue and Laravel.
+ */
+__webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
+
+__webpack_require__(/*! bootstrap4-datetimepicker/build/js/bootstrap-datetimepicker.min */ "./node_modules/bootstrap4-datetimepicker/build/js/bootstrap-datetimepicker.min.js");
+
+__webpack_require__(/*! jquery-timepicker/jquery.timepicker */ "./node_modules/jquery-timepicker/jquery.timepicker.js");
+
+__webpack_require__(/*! ./my-timepicker */ "./resources/js/my-timepicker.js");
+
+var Swal = __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js");
+
+var moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js"); //ダイアログ関連
+
+
+var dialogs = {}; //ボタンのonClickイベントのコールバック。submit前にダイアログを表示する。
+
+dialogs.showDialog = function (form) {
+  Swal.fire({
+    title: 'この内容で登録しますか？',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'はい',
+    cancelButtonText: 'いいえ'
+  }).then(function (result) {
+    if (result.value) {
+      form.submit();
+    }
+  });
+}; //ボタンイベントのダイアログ表示後の挙動をカスタム
+
+
+dialogs.showDialogAndDo = function (form, message, callback) {
+  Swal.fire({
+    title: message,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'はい',
+    cancelButtonText: 'いいえ'
+  }).then(function (result) {
+    if (result.value) {
+      callback();
+    }
+  });
+}; //グローバル化
+
+
+window.dialogs = dialogs; //datetimepicker関連
+
+var initDatepicker = {}; //全ての日付選択可能な設定
+
+initDatepicker.opt = {
+  useCurrent: false,
+  format: 'YYYY-MM-DD',
+  locale: 'ja'
+}; //JSONで受け取った祝日リストをミリ秒の配列に変換
+
+var yasumis = function yasumis() {
+  var yasumisData = $('#yasumi').data('json') || [];
+  return yasumisData.map(function (yasumi) {
+    return new Date("".concat(yasumi, " 00:00:00"));
+  });
+}; //土日祝日を除いた設定
+
+
+initDatepicker.optWithHolidays = {
+  useCurrent: false,
+  format: 'YYYY-MM-DD',
+  locale: 'ja',
+  disabledDates: yasumis(),
+  daysOfWeekDisabled: [0, 6]
+}; //グローバル化
+
+window.initDatepicker = initDatepicker; //その他汎用
+
+var formUtil = {}; //送信前にmethodとaction属性を書き換える
+
+formUtil.customSubmit = function (form, method, action) {
+  //二重送信防止
+  if (formUtil.isSubmitting) {
+    return;
+  } //送信中フラグ
+
+
+  formUtil.isSubmitting = true; //元の属性を取得
+
+  var beforeMethod = form.attr('method') || '';
+  var beforeAction = form.attr('action') || ''; //書き換え
+
+  form.attr('method', method);
+  form.attr('action', action);
+  form.submit(); // 属性と追加のパラメタを元に戻す
+
+  form.attr('action', beforeAction);
+  form.attr('method', beforeMethod); //送信中フラグ解除
+
+  formUtil.isSubmitting = false;
+}; //jQueryオブジェクトのnameとvalueをクリアした後アペンドする
+
+
+formUtil.alterAttr = function (element, name, value) {
+  element.attr('name', null).val(null);
+  element.attr('name', name).val(value);
+}; //グローバル化
+
+
+window.formUtil = formUtil;
+
+/***/ }),
+
+/***/ "./resources/js/holidayApplication.js":
+/*!********************************************!*\
+  !*** ./resources/js/holidayApplication.js ***!
+  \********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * First we will load all of this project's JavaScript dependencies which
+ * includes Vue and other libraries. It is a great starting point when
+ * building robust, powerful web applications using Vue and Laravel.
+ */
+__webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
+
+__webpack_require__(/*! bootstrap4-datetimepicker/build/js/bootstrap-datetimepicker.min */ "./node_modules/bootstrap4-datetimepicker/build/js/bootstrap-datetimepicker.min.js");
+
+__webpack_require__(/*! jquery-timepicker/jquery.timepicker */ "./node_modules/jquery-timepicker/jquery.timepicker.js");
+
+__webpack_require__(/*! ./my-timepicker */ "./resources/js/my-timepicker.js");
+
+__webpack_require__(/*! ./form-util */ "./resources/js/form-util.js");
+
+var Swal = __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js");
+
+var moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+/*
+ *タイムピッカーの値を受け取り差の時間を返す
+ */
+
+
+var getBussinessHours = function getBussinessHours(start, end) {
+  if (start != '' && end != '' && end > start) {
+    var startMoment = moment(start, "HH:mm");
+    var endMoment = moment(end, "HH:mm");
+    var bussinessHours = endMoment.diff(startMoment, 'h', true);
+    return bussinessHours;
+  } else {
+    return 'エラー';
+  }
+}; //timepicker変更時に上記の差の時間を表示する
+
+
+var showBusinessHours = function showBusinessHours() {
+  if ($('#holiday_time_to').val() != '' && $('#holiday_time_from').val() != '') {
+    $('#holiday_hours').val(getBussinessHours($('#holiday_time_from').val(), $('#holiday_time_to').val()));
+  }
+}; //Ajax通信で休暇日数を取得し表示する関数
+
+
+var showBusinessDays = function showBusinessDays() {
+  if ($('#holiday_date_from').val() != '' && $('#holiday_date_to').val() != '') {
+    $.ajax({
+      url: '/getDuration',
+      type: 'GET',
+      data: {
+        'holiday_date_from': $('#holiday_date_from').val(),
+        'holiday_date_to': $('#holiday_date_to').val()
+      }
+    }).done(function (data) {
+      return $('#holiday_days').val(data);
+    });
+  }
+}; //休暇種別による活性コントロール関数
+
+
+var controlDateTime = function controlDateTime() {
+  var holidayType = $('#holiday_type_id').val();
+
+  if (holidayType == 1 || holidayType == 3 || holidayType == 4) {
+    $('.timepicker').prop('disabled', true);
+    $('.datepicker').prop('disabled', false);
+    $('.timepicker').val(null);
+    $('#holiday_hours').val(null);
+    showBusinessDays();
+  } else {
+    $('#holiday_date_from').prop('disabled', false);
+    $('#holiday_date_to').prop('disabled', true);
+    $('.timepicker').prop('disabled', false);
+    $('#holiday_date_to').val(null);
+    $('#holiday_days').val(null);
+    showBusinessHours();
+  }
+};
+
+$(function () {
+  //datepicker初期化
+  $('.datepicker').datetimepicker(initDatepicker.optWithHolidays); //画面初期化
+
+  $(document).ready(function () {
+    myTimePicker.initTime($('#holiday_time_from'), '09:00', '18:00', 15);
+    myTimePicker.initTime($('#holiday_time_to'), '09:00', '18:00', 15);
+    controlDateTime();
+  }); //種別のonClickイベント
+
+  $('#holiday_type_id').on('change', function () {
+    controlDateTime();
+  }); //日付のonClickイベント
+
+  $('.datepicker').on('dp.change', function () {
+    showBusinessDays();
+  }); //時間のonClickイベント
+
+  $('.timepicker').on('change', function () {
+    showBusinessHours();
+  }); //スペルチェックをさせない
+
+  $("input[type='text'], textarea").attr('spellcheck', false); //申請押下時ダイアログ表示
+
+  $('#submit_holiday').on('click', function () {
+    dialogs.showDialog($('#holiday_application'));
+  });
+});
+
+/***/ }),
+
+/***/ "./resources/js/my-timepicker.js":
+/*!***************************************!*\
+  !*** ./resources/js/my-timepicker.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+
+var myTimePicker = {};
+/*
+ *開始時刻と終了時刻を受け取り、時間の配列を生成する
+ */
+
+myTimePicker.initTime = function (element, start, end, interval) {
+  var startTime = moment(start, 'HH:mm');
+  var endTime = moment(end, 'HH:mm');
+  var timeArr = [];
+
+  while (startTime <= endTime) {
+    timeArr.push(startTime.format("HH:mm"));
+    startTime = startTime.add(interval, 'minutes');
+  }
+
+  var optionTags = [];
+
+  for (i = 0; i < timeArr.length; i++) {
+    optionTags.push('<option>' + timeArr[i] + '</option>');
+  }
+
+  element.append(optionTags);
+
+  if (element.data("old")) {
+    element.val(element.data("old"));
+  }
+};
+
+window.myTimePicker = myTimePicker;
+
+/***/ }),
+
+/***/ "./resources/js/table-util.js":
+/*!************************************!*\
+  !*** ./resources/js/table-util.js ***!
+  \************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/**
+ * First we will load all of this project's JavaScript dependencies which
+ * includes Vue and other libraries. It is a great starting point when
+ * building robust, powerful web applications using Vue and Laravel.
+ */
+var tableUtil = {}; //行追加・削除時の要素変化
 
 var alterRowAttr = function alterRowAttr(table) {
-  //行数に応じて動的に削除ボタンの表示を切替
+  //trタグの数に応じて行削除ボタンの表示を切り替える
   var rowCnt = table.find('tr').length;
 
   if (rowCnt == 4) {
     $('.removeRow').addClass('d-none');
   } else {
     $('.removeRow').removeClass('d-none');
-  } //No.に行番号を動的に表示
+  } //dynamic-numクラスの要素に行番号を動的に表示
 
 
-  table.find("[name='statement_number[]']").each(function (i) {
+  table.find(".dynamic-num").each(function (i) {
     $(this).val(i++);
-  }); //datepickerの位置を調整
+  }); //dynamic-dpクラスの要素の位置を調整（datepicker）
 
-  table.find('.e-datepicker').attr('style', 'position:relative');
-};
+  table.find('.dynamic-dp').attr('style', 'position:relative');
+}; //動的テーブルの標準動作
 
-var datetimepicker = {};
-datetimepicker.opt = {
-  useCurrent: false,
-  format: 'YYYY-MM-DD',
-  locale: 'ja'
-};
-$(function () {
-  //提出日にシステム日付を表示
-  $("[name='submit_datetime']").val(moment(new Date()).format('YYYY-MM-DD')); //生成された明細行の発生日をdatetimepickerとしてイニシャライズ
 
-  $(document).on('focus', '.e-datepicker', function () {
-    $(this).datetimepicker(datetimepicker.opt);
-  }); //ページ読み込み時に明細1行目をレンダリング
-
-  $(document).ready(function () {
-    if ($('.is-invalid').length == 0 && $('[name="expense_id"]').data('mode') == 'new') {
-      $('.dynamic-table .addRow').click();
-    }
-  }); // 動的テーブルに行の追加・削除ボタンを追加する
-
+tableUtil.dynamics = function () {
+  // 動的テーブルに行の追加・削除ボタンを追加する
   $('.dynamic-table').each(function (i) {
     var colspan = 0; // 最後の行において横方向にセルを結合する用
 
@@ -90143,183 +90459,9 @@ $(function () {
 
     alterRowAttr($(table));
   });
-});
-
-/***/ }),
-
-/***/ "./resources/js/holidayApplication.js":
-/*!********************************************!*\
-  !*** ./resources/js/holidayApplication.js ***!
-  \********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-__webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
-
-__webpack_require__(/*! bootstrap4-datetimepicker/build/js/bootstrap-datetimepicker.min */ "./node_modules/bootstrap4-datetimepicker/build/js/bootstrap-datetimepicker.min.js");
-
-__webpack_require__(/*! jquery-timepicker/jquery.timepicker */ "./node_modules/jquery-timepicker/jquery.timepicker.js");
-
-__webpack_require__(/*! ./my-timepicker */ "./resources/js/my-timepicker.js");
-
-var Swal = __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js");
-
-var moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
-/*
- *タイムピッカーの値を受け取り差の時間を返す
- */
-
-
-var getBussinessHours = function getBussinessHours(start, end) {
-  if (start != '' && end != '' && end > start) {
-    var startMoment = moment(start, "HH:mm");
-    var endMoment = moment(end, "HH:mm");
-    var bussinessHours = endMoment.diff(startMoment, 'h', true);
-    return bussinessHours;
-  } else {
-    return 'エラー';
-  }
-};
-/*
- *JSONで受け取った祝日リストをミリ秒の配列に変換
- */
-
-
-var yasumis = function yasumis() {
-  var yasumisData = $('#holiday_date').data('json') || [];
-  return yasumisData.map(function (yasumi) {
-    return new Date("".concat(yasumi, " 00:00:00"));
-  });
 };
 
-$(function () {
-  $('.datepicker').datetimepicker({
-    useCurrent: false,
-    format: 'YYYY-MM-DD',
-    disabledDates: yasumis(),
-    daysOfWeekDisabled: [0, 6],
-    locale: 'ja'
-  });
-  $(document).ready(function () {
-    myTimePicker.initTime($('#holiday_time_from'), '09:00', '18:00', 15);
-    myTimePicker.initTime($('#holiday_time_to'), '09:00', '18:00', 15);
-    var holidayClass = $('#holiday_class_common_id').val();
-
-    if (holidayClass == 1 || holidayClass == 3) {
-      $('.timepicker').prop('disabled', true);
-      $('.datepicker').prop('disabled', false);
-      $('.timepicker').val(null);
-      $('#holiday_hours').val(null);
-    } else {
-      $('#holiday_date_from').prop('disabled', false);
-      $('#holiday_date_to').prop('disabled', true);
-      $('.timepicker').prop('disabled', false);
-      $('#holiday_date_to').val(null);
-      $('#holiday_days').val(null);
-
-      if ($('#holiday_time_to').val() != '' && $('#holiday_time_from').val() != '') {
-        $('#holiday_hours').val(getBussinessHours($('#holiday_time_from').val(), $('#holiday_time_to').val()));
-      }
-    }
-  });
-  $('#holiday_class_common_id').on('change', function () {
-    var holidayClass = $('#holiday_class_common_id').val();
-
-    if (holidayClass == 1 || holidayClass == 3) {
-      $('.timepicker').prop('disabled', true);
-      $('.datepicker').prop('disabled', false);
-      $('.timepicker').val(null);
-      $('#holiday_hours').val(null);
-    } else {
-      $('#holiday_date_from').prop('disabled', false);
-      $('#holiday_date_to').prop('disabled', true);
-      $('.timepicker').prop('disabled', false);
-      $('#holiday_date_to').val(null);
-      $('#holiday_days').val(null);
-    }
-  });
-  $('.datepicker').on('dp.change', function () {
-    if ($('#holiday_date_from').val() != '' && $('#holiday_date_to').val() != '') {
-      $.ajax({
-        url: '/getDuration',
-        type: 'GET',
-        data: {
-          'holiday_date_from': $('#holiday_date_from').val(),
-          'holiday_date_to': $('#holiday_date_to').val()
-        }
-      }).done(function (data) {
-        return $('#holiday_days').val(data);
-      });
-    }
-  });
-  $('.timepicker').on('change', function () {
-    if ($('#holiday_time_to').val() != '' && $('#holiday_time_from').val() != '') {
-      $('#holiday_hours').val(getBussinessHours($('#holiday_time_from').val(), $('#holiday_time_to').val()));
-    }
-  });
-  $("input[type='text'], textarea").attr('spellcheck', false);
-  $('#submit_holiday').on('click', function () {
-    Swal.fire({
-      title: 'この内容で登録しますか？',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'はい',
-      cancelButtonText: 'いいえ'
-    }).then(function (result) {
-      if (result.value) {
-        $('#holiday_application').submit();
-      }
-    });
-  });
-});
-
-/***/ }),
-
-/***/ "./resources/js/my-timepicker.js":
-/*!***************************************!*\
-  !*** ./resources/js/my-timepicker.js ***!
-  \***************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
-
-var myTimePicker = {};
-/*
- *開始時刻と終了時刻を受け取り、時間の配列を生成する
- */
-
-myTimePicker.initTime = function (element, start, end, interval) {
-  var startTime = moment(start, 'HH:mm');
-  var endTime = moment(end, 'HH:mm');
-  var timeArr = [];
-
-  while (startTime <= endTime) {
-    timeArr.push(startTime.format("HH:mm"));
-    startTime = startTime.add(interval, 'minutes');
-  }
-
-  var optionTags = [];
-
-  for (i = 0; i < timeArr.length; i++) {
-    optionTags.push('<option>' + timeArr[i] + '</option>');
-  }
-
-  element.append(optionTags);
-
-  if (element.data("old")) {
-    element.val(element.data("old"));
-  }
-};
-
-window.myTimePicker = myTimePicker;
+window.tableUtil = tableUtil;
 
 /***/ }),
 

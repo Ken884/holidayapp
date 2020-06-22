@@ -58,4 +58,25 @@ class ExpenseService
 
         }); // トランザクションここまで
     }
+
+    public function authorize($params)
+    {
+        //トランザクション開始
+        DB::transaction(function() use($params) {
+            $expenseapp = ExpenseApplication::find($params['expense_id']);
+            $expenseapp->application_status_id = 2;
+            $expenseapp->save();            
+        });
+        //トランザクションここまで
+    }
+
+    public function decline($params)
+    {
+        //
+        DB::transaction(function() use($params) {
+            $expenseapp = ExpenseApplication::find($params['expense_id']);
+            $expenseapp->application_status_id = 3;
+            $expenseapp->save();
+        });
+    }
 }
