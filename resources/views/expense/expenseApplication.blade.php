@@ -1,6 +1,11 @@
 @extends('layouts.app')
 @section('content')
 <div class="container">
+    @if($mode == 'new')
+    <div class="section-header"><h3>経費精算書：新規</h3></div>
+    @else
+    <div class="section-header"><h3>経費精算書：修正</h3></div>
+    @endif
     <div class="card">
         <div class="card-body">
             <form id="expense_application" method="post" action="{{ url('/expenseapplications/new')}}" autocomplete="off">

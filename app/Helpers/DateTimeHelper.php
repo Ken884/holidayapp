@@ -10,7 +10,7 @@ class DateTimeHelper
      */
     public static function parseDate($param){
 
-        $dateArr = preg_split('/\(/', $param);
+        $dateArr = preg_split('/\s/', $param);
         return $dateArr[0];
     }
 }

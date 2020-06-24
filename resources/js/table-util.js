@@ -5,6 +5,8 @@
  */
 const tableUtil = {};
 
+//動的テーブル関連
+
 //行追加・削除時の要素変化
 const alterRowAttr = table => {
 
@@ -76,6 +78,56 @@ tableUtil.dynamics = function () {
         alterRowAttr($(table));
     });
 };
+
+//一覧ページ用DataTable関連
+
+//デフォルトの設定
+const myOptions= {paging: true,
+    lengthChange: false,
+    searching: false,
+    ordering: true,
+    info: true,
+    autoWidth: false,
+    order: [],
+    language: {
+      processing: "処理中...",
+      search: "検索",
+      lengthMenu: "_MENU_件表示",
+      info: "_TOTAL_ 件中 _START_ 件目から _END_ 件目まで表示",
+      infoEmpty: "データが1件もありません",
+      infoFiltered: "（全 _MAX_ 件より抽出）",
+      infoPostFix: "",
+      zeroRecords: "データが1件もありません",
+      emptyTable: "データが1件もありません",
+      paginate: {
+        first: "最初",
+        previous: "前",
+        next: "次",
+        last: "最後"}
+    }
+};
+
+tableUtil.initDataTable = (table, columns, renders = {}) => {
+    let columnDefs = {};
+    columnDefs = columns.map((column, i) => (
+      {
+        title: column,
+        targets: i,
+        data: i,
+        className: 'v-center'
+      }
+    ));
+    Object.keys(renders).forEach(i => (columnDefs[i]['render'] = renders[i]));
+    table.dataTable({
+      ...myOptions,
+      stateSave: true,
+      stateLoadParams: (settings, data) => {
+        if (!location.search.match(/stateLoad=true/)) return false;
+      },
+      data: table.data('json'),
+      columnDefs: columnDefs
+    });
+  };
 
 window.tableUtil = tableUtil;
 

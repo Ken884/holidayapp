@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Helpers\DateTimeHelper;
 
 class ExpenseApplication extends Model
 {
@@ -18,7 +19,7 @@ class ExpenseApplication extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo('App\User', 'employee_id');
     }
 
     public function expense_statements()
@@ -29,5 +30,10 @@ class ExpenseApplication extends Model
     public function application_status()
     {
         return $this->belongsTo('App\ApplicationStatus');
+    }
+
+    public function getSubmitDateAttr()
+    {
+        return DateTimeHelper::parseDate('submit_datetime');
     }
 }

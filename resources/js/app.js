@@ -10,6 +10,7 @@ require('./holidayApplication');
 require('./expenseApplication')
 require('./my-timepicker');
 require('admin-lte/dist/js/adminlte');
+require('datatables.net-dt/js/dataTables.dataTables');
 
 require('@fortawesome/fontawesome-free/js/all')
 

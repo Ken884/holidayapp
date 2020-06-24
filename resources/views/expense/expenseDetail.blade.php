@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('content')
 <div class="container">
+    <div class="section-header"><h3>経費精算書：詳細</h3></div>
     <div class="card">
         <div class="card-body">
             <form id="expense_show" data-href="{{ route('authorize', $expenseApplication) }}">
@@ -12,7 +13,7 @@
                             <label>提出日</label>
                         </div>
                         <div class="col-sm-2">
-                            <input type="text" id="submit_datetime" style="text-align:center" value="{{ $expenseApplication->submit_datetime }}" class="form-control mr-2" readonly>
+                            <input type="text" id="submit_datetime" style="text-align:center" value="{{ DateTimeHelper::parseDate($expenseApplication->submit_datetime) }}" class="form-control mr-2" readonly>
                         </div>
                     </div>
                 </div>

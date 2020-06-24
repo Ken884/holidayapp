@@ -58,12 +58,6 @@ class HolidayApplicationController extends Controller
     {
         $params = $req->all();
 
-        $fromArr = preg_split('/\(/', $params['holiday_date_from']);
-        $params['holiday_date_from'] = $fromArr[0];
-
-        $toArr = preg_split('/\(/', $params['holiday_date_to']);
-        $params['holiday_date_to'] = $toArr[0];
-
         $days = $this->holidayService->getDuration($params);
         return $days;
     }

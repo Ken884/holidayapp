@@ -44,7 +44,7 @@ class User extends Authenticatable
 
     public function expense_applications()
     {
-        return $this->hasMany('App\ExpenseApplication');
+        return $this->hasMany('App\ExpenseApplication', 'employee_id');
     }
 
     public function paid_holidays()

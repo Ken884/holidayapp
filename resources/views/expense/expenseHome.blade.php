@@ -1,6 +1,9 @@
 @extends('layouts.app')
 @section('content')
 <div class="container">
+    <div class="section-header">
+        <h3>経費精算書：一覧</h3>
+    </div>
     <div class="row justify-content-center">
         <div class="col-12">
             <div class="card">
@@ -8,13 +11,13 @@
                     <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link active" data-toggle="tab" href="#tab1">
-                                ダッシュボード
+                                あなたの経費精算書一覧
                             </a>
                         </li>
                         @can('admin')
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#tab2">
-                                管理者用画面
+                                みんなの経費精算書一覧
                             </a>
                         </li>
                         @endcan
@@ -24,33 +27,38 @@
                             <!-- userの内容 -->
                             <div class="card-body">
                                 <div class="card">
-                                    <div class="card-header">Information</div>
+                                    <div class="card-header">ダッシュボード</div>
                                     <div class="card-body">
                                         <p>これから考える</p>
                                         <a href="{{ route('expense_create') }}"><button class="btn btn-primary">新規作成</button></a>
                                     </div>
                                 </div>
                                 <div class="card">
-                                    <div class="card-header">Recents</div>
+                                    <div class="card-header">一覧</div>
                                     <div class="card-body">
-                                        <table class="table table-striped table-bordered">
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>従業員ID</th>
-                                                <th>提出日</th>
-                                                <th>申請状況</th>
-                                                <th></th>
-                                            </tr>
+                                        <form id="userSearch">
+                                            <div class="form-group">
+                                                <div class="row my-2">
+                                                    <div class="col-sm-1"><label>申請状況</label></div>
+                                                    <div class="col-sm-3">
+                                                        <select name="appStatus" class="form-control">
+                                                            @foreach(App\ApplicationStatus::all() as $appStatus)
+                                                            <option value="{{ $appStatus->id }}">{{ $appStatus->application_status_name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-sm-1"><label>提出日</label></div>
 
-                                            @foreach($expenseApplications->get() as $expenseApplication)
-                                            <tr>
-                                                <td>{{ $expenseApplication->id }}</td>
-                                                <td>{{ $expenseApplication->employee_id }}</td>
-                                                <td>{{ $expenseApplication->submit_datetime }}</td>
-                                                <td>{{ $expenseApplication->application_status->application_status_name }}</td>
-                                                <td><a href="{{  route('expense_show', $expenseApplication) }}"><button class="btn btn-success">詳細</button></a></td>
-                                            </tr>
-                                            @endforeach
+                                                    <div class="col-sm-3">
+                                                        <input type="text" name="submitDate" class="e-datepicker form-control">
+                                                    </div>
+                                                    <div class="col-sm-2 ml-3 float-right">
+                                                        <input type="button" value="絞り込み" id="showUser" class="btn btn-primary btn-block">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <table class="table table-striped table-bordered ex-user" data-json="{{ $expenseApplications }}">
                                         </table>
                                     </div>
                                 </div>
@@ -61,25 +69,30 @@
                             <!-- adminの内容 -->
                             <div class="card-body">
                                 <div class="card">
-                                    <div class="card-header">Recents</div>
                                     <div class="card-body">
-                                        <table class="table table-striped table-bordered">
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>従業員ID</th>
-                                                <th>提出日</th>
-                                                <th>申請状況</th>
-                                                <th></th>
-                                            </tr>
-                                            @foreach(App\ExpenseApplication::all() as $expenseApplication)
-                                            <tr>
-                                                <td>{{ $expenseApplication->id }}</td>
-                                                <td>{{ $expenseApplication->employee_id }}</td>
-                                                <td>{{ $expenseApplication->submit_datetime }}</td>
-                                                <td>{{ $expenseApplication->application_status->application_status_name }}</td>
-                                                <td><a href="{{  route('expense_show', $expenseApplication) }}"><button class="btn btn-success">詳細</button></a></td>
-                                            </tr>
-                                            @endforeach
+                                        <form id="adminSearch">
+                                            <div class="form-group">
+                                                <div class="row my-2">
+                                                    <div class="col-sm-1"><label>申請状況</label></div>
+                                                    <div class="col-sm-3">
+                                                        <select name="appStatus" class="form-control">
+                                                            @foreach(App\ApplicationStatus::all() as $appStatus)
+                                                            <option value="{{ $appStatus->id }}">{{ $appStatus->application_status_name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-sm-1"><label>提出日</label></div>
+
+                                                    <div class="col-sm-3">
+                                                        <input type="text" name="submitDate" class="e-datepicker form-control">
+                                                    </div>
+                                                    <div class="col-sm-2 ml-3 float-right">
+                                                        <input type="button" id="showAdmin" value="search" class="btn btn-primary btn-block">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <table class="table table-striped table-bordered ex-admin" data-json="{{ $listForAdmin }}">
                                         </table>
                                     </div>
                                 </div>

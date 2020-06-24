@@ -56,6 +56,8 @@ Route::middleware(['auth'])->group(function(){
 
         //管理者のみアクセス可能
         Route::middleware('can:admin')->group(function() {
+            Route::get('searchAdmin', 'ExpenseApplicationController@searchAdmin');
+            Route::get('searchUser', 'ExpenseApplicationController@searchUser');
             Route::post('expenseapplication/show/{expenseApplication}', 'ExpenseApplicationController@expense_authorize')->name('authorize');
         });
     });

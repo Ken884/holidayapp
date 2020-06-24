@@ -15,7 +15,7 @@ const { data } = require('jquery');
 
 
 $(function () {
-//申請画面関連  
+  //申請画面関連  
   //提出日にシステム日付を表示
   $("[name='submit_datetime']").val(moment(new Date).format('YYYY-MM-DD'));
 
@@ -29,27 +29,94 @@ $(function () {
 
   //新規作成画面読み込み時に明細1行目をレンダリング
   $(document).ready(function () {
-    if($('.is-invalid').length == 0 && $('[name="expense_id"]').data('mode') == 'new') {
+    if ($('.is-invalid').length == 0 && $('[name="expense_id"]').data('mode') == 'new') {
       $('.dynamic-table .addRow').click();
     }
   });
 
   //申請押下時ダイアログを表示
-  $('#submit_expense').on('click', function() {
+  $('#submit_expense').on('click', function () {
     dialogs.showDialog();
   });
 
 
-  
-//詳細画面関連
+
+  //詳細画面関連
   //管理者用・承認ボタン
-  $('.authorize').on('click', function() {
+  $('.authorize').on('click', function () {
     formUtil.alterAttr($('.authorization'), 'authorization', 'authorized')
     dialogs.showDialogAndDo($('#expense_show'), '承認しますか？', () => formUtil.customSubmit($('#expense_show'), 'post', $('#expense_show').data('href')));
   });
   //否認ボタン
-  $('.decline').on('click', function() {
+  $('.decline').on('click', function () {
     formUtil.alterAttr($('.authorization'), 'authorization', 'declined')
     dialogs.showDialogAndDo($('#expense_show'), '否認しますか？', () => formUtil.customSubmit($('#expense_show'), 'post', $('#expense_show').data('href')));
   });
+
+
+
+  //一覧画面関連
+  //ユーザー用一覧をDataTableとしてイニシャライズ
+  const showUserTable = () => {
+    tableUtil.initDataTable($('.ex-user'), ['経費精算書ID', '提出日', '申請状況', '詳細'],
+      {
+        3:
+          function (data) {
+            return '<a href=' + data + '><button type="button" class="btn btn-block btn-success">詳細</button></a>';
+          }
+      })
+  };
+
+  //管理者用一覧をDataTableとしてイニシャライズ
+  const showAdminTable = () => {
+    tableUtil.initDataTable($('.ex-admin'), ['経費精算書ID', '提出日', '姓', '名', '申請状況', '詳細'],
+      {
+        5:
+          function (data) {
+            return '<a href=' + data + '><button type="button" class="btn btn-block btn-success">詳細</button></a>';
+          }
+      })
+  };
+
+
+
+  //画面読み込み時にテーブル初期化
+
+  $(document).ready(function () {
+    showUserTable();
+    showAdminTable();
+  })
+  
+  //ユーザー用テーブルを検索によって再描画
+  $('#showUser').on('click', function () {
+    //AJAX通信・管理者用フォーム
+    let userParams = $('#userSearch').serialize();
+    $.ajax({
+      url: '/searchUser',
+      type: 'GET',
+      data: userParams
+    }).done(res => {
+      $('.ex-user').DataTable().destroy();
+      $('.ex-user').data('json', res['json']);
+      showUserTable();
+    });
+  });
+  
+  //管理者用テーブルを検索によって再描画
+  $('#showAdmin').on('click', function () {
+    //AJAX通信・管理者用フォーム
+    let adminParams = $('#adminSearch').serialize();
+    $.ajax({
+      url: '/searchAdmin',
+      type: 'GET',
+      data: adminParams
+    }).done(res => {
+      $('.ex-admin').DataTable().destroy();
+      $('.ex-admin').data('json', res['json']);
+      showAdminTable();
+    });
+  });
+
 });
+
+
