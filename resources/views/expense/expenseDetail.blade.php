@@ -4,7 +4,7 @@
     <div class="section-header"><h3>経費精算書：詳細</h3></div>
     <div class="card">
         <div class="card-body">
-            <form id="expense_show" data-href="{{ route('authorize', $expenseApplication) }}">
+            <form id="expense_show" data-href="{{ route('expense_authorize', $expenseApplication) }}">
                 <div class="form-horizontal">
                     <!-- CSRF保護 -->
                     @csrf
@@ -34,7 +34,7 @@
                             @foreach($statements as $statement)
                             <tr>
                                 <div hidden><input name='expense_id' value="{{ $expenseApplication->id }}"></div>
-                                <div hidden><input class="authorization"></div>
+                                <div hidden><input class="ex-authorization"></div>
                                 <div class="form-group form-group-norrow" class="form-control">
                                     <td><input type="text" name="statement_number[]" value="{{ $statement->statement_number }}" readonly class="form-control" readonly></td>
                                     <td><input type="text" name="occurred_date[]" value="{{ $statement->occurred_date }}" class="form-control" readonly></td>
@@ -56,16 +56,16 @@
                     </div>
                 </div>
                 <div class="row my-2">
-                    @can('my_expense', $expenseApplication)
+                    @can('edit_expense', $expenseApplication)
                     <div class="col-sm-2 offset-sm-5">
                         <a href="{{ route('expense_edit', $expenseApplication) }}"><button  class="btn btn-primary btn-block edit" type="button">修正</button></a>
                     </div>
                     @elsecan('admin')
                     <div class="col-sm-2 offset-sm-4">
-                        <button type="button" class="btn btn-primary btn-block authorize">承認</button>
+                        <button type="button" class="btn btn-primary btn-block ex-authorize @if($expenseApplication->application_status->application_status_code == 'approve') disabled @endif">承認</button>
                     </div>
                     <div class="col-sm-2">
-                        <button type="button" class="btn btn-danger btn-block decline">否認</button>
+                        <button type="button" class="btn btn-danger btn-block ex-decline @if($expenseApplication->application_status->application_status_code == 'deny') disabled @endif">否認</button>
                     </div>
                     @endcan
                 </div>

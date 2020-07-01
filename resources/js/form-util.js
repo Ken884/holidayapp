@@ -116,5 +116,10 @@ formUtil.alterAttr = (element, name, value) => {
     element.attr('name', name).val(value);
 }
 
+formUtil.yasumis = () => {
+    const yasumisData = $('#yasumi').data('json') || [];
+    return yasumisData.map(yasumi => new Date(`${yasumi} 00:00:00`));
+}
+
 //グローバル化
 window.formUtil = formUtil;

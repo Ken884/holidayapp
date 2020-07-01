@@ -1,19 +1,22 @@
 @extends('layouts.app')
 @section('content')
 <div class="container">
+    <div class="section-header">
+        <h3>休暇届：一覧</h3>
+    </div>
     <div class="row justify-content-center">
         <div class="col-12">
             <div class="card">
                 <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#tab1">
-                            ダッシュボード
+                            <h5>あなたの休暇届一覧</h5>
                         </a>
                     </li>
                     @can('admin')
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#tab2">
-                            管理者用画面
+                            <h5>みんなの休暇届一覧</h5>
                         </a>
                     </li>
                     @endcan
@@ -24,39 +27,88 @@
                         <!-- userの内容 -->
                         <div class="card-body">
                             <div class="card">
-                                <div class="card-header">Information</div>
+                                <div class="card-header">ダッシュボード</div>
                                 <div class="card-body">
-                                    <p>これから考える</p>
-                                    <a href="{{ route('holiday_create') }}"><button class="btn btn-primary">新規作成</button></a>
+                                    <div class="row my-2">
+                                        <div class="col-sm-3 offset-1 mr-3">
+                                            <div class="small-box bg-success">
+                                                <div class="inner">
+                                                    <h3>{{ $info['days'] }}日</h3>
+                                                    <p>休暇取得日数</p>
+                                                </div>
+                                                <div class="icon">
+                                                    <i class="fas fa-user-plus"></i>
+                                                </div>
+                                                <a href="#" class="small-box-footer">
+                                                    <span>more info</span>
+                                                    <i class="fas fa-arrow-circle-right"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3 mx-3">
+                                            <div class="small-box bg-primary">
+                                                <div class="inner">
+                                                    <h3>{{ $info['approved'] }}件</h3>
+                                                    <p>承認された休暇届</p>
+                                                </div>
+                                                <div class="icon">
+                                                    <i class="fas fa-chart-bar"></i>
+                                                </div>
+                                                <a href="#" class="small-box-footer">
+                                                    <span>more info</span>
+                                                    <i class="fas fa-arrow-circle-right"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3 mx-3">
+                                            <div class="small-box bg-danger">
+                                                <div class="inner">
+                                                    <h3>{{ $info['denied'] }}件</h3>
+                                                    <p>否認された休暇届</p>
+                                                </div>
+                                                <div class="icon">
+                                                    <i class="fas fa-chart-bar"></i>
+                                                </div>
+                                                <a href="#" class="small-box-footer">
+                                                    <span>more info</span>
+                                                    <i class="fas fa-arrow-circle-right"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row my-2">
+                                        <div class="col-sm-4 offset-sm-4">
+                                            <a href="{{ route('holiday_create') }}"><button class="btn btn-primary btn-block">新規作成</button></a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="card">
-                                <div class="card-header">Recents</div>
+                                <div class="card-header">一覧</div>
                                 <div class="card-body">
-                                    <table class="table table-striped table-bordered">
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>従業員ID</th>
-                                            <th>提出日</th>
-                                            <th>休暇種別</th>
-                                            <th>理由</th>
-                                            <th>備考</th>
-                                            <th>申請状況</th>
-                                            <th></th>
-                                        </tr>
+                                    <form id="userSearchHoliday">
+                                        <div class="form-group">
+                                            <div class="row my-2">
+                                                <div class="col-sm-1"><label>申請状況</label></div>
+                                                <div class="col-sm-3">
+                                                    <select name="appStatus" class="form-control">
+                                                        @foreach(App\ApplicationStatus::all() as $appStatus)
+                                                        <option value="{{ $appStatus->id }}">{{ $appStatus->application_status_name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-sm-1"><label>提出日</label></div>
 
-                                        @foreach($holidayApplications->get() as $holidayApplication)
-                                        <tr>
-                                            <td>{{ $holidayApplication->id }}</td>
-                                            <td>{{ $holidayApplication->employee_id }}</td>
-                                            <td>{{ $holidayApplication->submit_datetime }}</td>
-                                            <td>{{ $holidayApplication->holiday_type->holiday_type_name }}</td>
-                                            <td>{{ $holidayApplication->reason }}</td>
-                                            <td>{{ $holidayApplication->remarks }}</td>
-                                            <td>{{ $holidayApplication->application_status->application_status_name }}</td>
-                                            <td><a href="{{  route('holiday_show', $holidayApplication) }}"><button class="btn btn-success">詳細</button></a></td>
-                                        </tr>
-                                        @endforeach
+                                                <div class="col-sm-3">
+                                                    <input type="text" name="submitDate" class="hh-datepicker form-control">
+                                                </div>
+                                                <div class="col-sm-2 ml-3 float-right">
+                                                    <input type="button" value="絞り込み" id="showUserHoliday" class="btn btn-primary btn-block">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <table class="table table-striped table-bordered ho-user" data-json="{{ $holidayApplications }}">
                                     </table>
                                 </div>
                             </div>
@@ -67,32 +119,30 @@
                         <!-- adminの内容 -->
                         <div class="card-body">
                             <div class="card">
-                                <div class="card-header">Recents</div>
                                 <div class="card-body">
-                                    <table class="table table-striped table-bordered">
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>従業員ID</th>
-                                            <th>提出日</th>
-                                            <th>休暇種別</th>
-                                            <th>理由</th>
-                                            <th>備考</th>
-                                            <th>申請状況</th>
-                                            <th></th>
-                                        </tr>
+                                    <form id="adminSearchHoliday">
+                                        <div class="form-group">
+                                            <div class="row my-2">
+                                                <div class="col-sm-1"><label>申請状況</label></div>
+                                                <div class="col-sm-3">
+                                                    <select name="appStatus" class="form-control">
+                                                        @foreach(App\ApplicationStatus::all() as $appStatus)
+                                                        <option value="{{ $appStatus->id }}">{{ $appStatus->application_status_name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-sm-1"><label>提出日</label></div>
 
-                                        @foreach($holidayApplications->get() as $holidayApplication)
-                                        <tr>
-                                            <td>{{ $holidayApplication->id }}</td>
-                                            <td>{{ $holidayApplication->employee_id }}</td>
-                                            <td>{{ $holidayApplication->submit_datetime }}</td>
-                                            <td>{{ $holidayApplication->holiday_type->holiday_type_name }}</td>
-                                            <td>{{ $holidayApplication->reason }}</td>
-                                            <td>{{ $holidayApplication->remarks }}</td>
-                                            <td>{{ $holidayApplication->application_status->application_status_name }}</td>
-                                            <td><a href="{{  route('holiday_show', $holidayApplication) }}"><button class="btn btn-success">詳細</button></a></td>
-                                        </tr>
-                                        @endforeach
+                                                <div class="col-sm-3">
+                                                    <input type="text" name="submitDate" class="hh-datepicker form-control">
+                                                </div>
+                                                <div class="col-sm-2 ml-3 float-right">
+                                                    <input type="button" value="絞り込み" id="showAdminHoliday" class="btn btn-primary btn-block">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <table class="table table-striped table-bordered ho-admin" data-json="{{ $listForAdmin }}">
                                     </table>
                                 </div>
                             </div>

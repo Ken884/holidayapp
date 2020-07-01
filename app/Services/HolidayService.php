@@ -24,15 +24,19 @@ class HolidayService
 
         DB::transaction(function () use ($params) {
             //休暇届テーブルにデータを保存
-            $holidayapp = new HolidayApplication;
+            $holidayapp = HolidayApplication::findOrNew($params['holiday_id']);
             $holidayapp->employee_id = Auth::id();
             $holidayapp->submit_datetime = Carbon::now();
             $holidayapp->holiday_type_id = $params['holiday_type_id'];
             $holidayapp->reason = $params['reason'];
             $holidayapp->remarks = $params['remarks'];
-            $holidayapp->application_status_id = 1;
-            //dd($holidayapp);
+            $holidayapp->application_status_id = $holidayapp->application_status_id ?? 1;
             $holidayapp->save();
+
+            //修正の場合、休暇日時テーブルのレコードを削除
+            if(HolidayDatetime::where('holiday_application_id', $params['holiday_id'])->exists()){
+                HolidayDatetime::where('holiday_application_id', $params['holiday_id'])->delete();
+            }
 
             //休暇日時テーブルにデータを保存
             $fromdate = new Carbon($params['holiday_date_from']);
@@ -52,6 +56,29 @@ class HolidayService
             // DBに保存または削除する
 
         }); // トランザクションここまで
+    }
+
+    //承認
+    public function authorize($params)
+    {
+        //トランザクション開始
+        DB::transaction(function() use($params) {
+            $holidayapp = HolidayApplication::find($params['holiday_id']);
+            $holidayapp->application_status_id = 2;
+            $holidayapp->save();            
+        });
+        //トランザクションここまで
+    }
+
+    //否認
+    public function decline($params)
+    {
+        //
+        DB::transaction(function() use($params) {
+            $holidayapp = HolidayApplication::find($params['holiday_id']);
+            $holidayapp->application_status_id = 3;
+            $holidayapp->save();   
+        });
     }
 
     //Ajaxで受け取った日付から土日祝日を除いた期間を返す

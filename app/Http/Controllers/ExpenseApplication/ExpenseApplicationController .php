@@ -5,6 +5,7 @@ namespace App\Http\Controllers\ExpenseApplication;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\ExpenseApplication;
+use App\ExpenseStatement;
 use App\Http\Requests\ExpenseApplicationPostReq;
 use App\Services\ExpenseService;
 use App\User;
@@ -26,13 +27,9 @@ class ExpenseApplicationController extends Controller
     //一覧画面
     public function index(Request $req)
     {
-        $reqUrl = $req->fullUrl();
-        if (!$req->query()) $reqUrl .= '?';
-        $req->session()->put('intdefSearchUrl', $reqUrl);
         $expenseApplications = $this->fetchUserList($req);
         $expenseApplications->transform(function($expenseApplication) {
             return [
-                $expenseApplication->id,
                 DateTimeHelper::parseDate($expenseApplication->submit_datetime),
                 $expenseApplication->application_status->application_status_name,
                 route('expense_show', $expenseApplication->id),
@@ -40,29 +37,38 @@ class ExpenseApplicationController extends Controller
         });
         $expenseApplications = json_encode($expenseApplications);
         
+        $apps = ExpenseApplication::where('employee_id', Auth::user()->id);
+        $authorized = $apps->where('application_status_id', 2);
+        $money = ExpenseStatement::whereIn('expense_id', $authorized->pluck('id'))->pluck('amount')->sum();
+        $approved = $authorized->get()->count();
+        $denied = $apps->where('application_status_id', 3)->get()->count();
+        
+        $info =[
+            'money' => $money, 
+            'approved' => $approved, 
+            'denied' => $denied
+        ];
+
         $listForAdmin = $this->fetchAdminList($req);
         $listForAdmin->transform(function($listApp) {
             return [
-                $listApp->id,
                 DateTimeHelper::parseDate($listApp->submit_datetime),
-                $listApp->user->last_name,
-                $listApp->user->first_name,
+                $listApp->user->full_name,
                 $listApp->application_status->application_status_name,
                 route('expense_show', $listApp->id),
             ];
         });
         $listForAdmin = json_encode($listForAdmin);
 
-        return view('expense/expenseHome', compact('expenseApplications', 'listForAdmin'));
+        return view('expense/expenseHome', compact('expenseApplications', 'listForAdmin', 'info'));
     }
 
     //ユーザー用・検索結果をAJAXで返す
-    public function searchUser(Request $req)
+    public function userSearch(Request $req)
     {
         $expenseApplications = $this->fetchUserList($req);
         $expenseApplications->transform(function($expenseApplication) {
             return [
-                $expenseApplication->id,
                 DateTimeHelper::parseDate($expenseApplication->submit_datetime),
                 $expenseApplication->application_status->application_status_name,
                 route('expense_show', $expenseApplication->id),
@@ -74,15 +80,13 @@ class ExpenseApplicationController extends Controller
     }
 
     //管理者用・検索結果をAJAXで返す
-    public function searchAdmin(Request $req)
+    public function adminSearch(Request $req)
     {
         $listForAdmin = $this->fetchAdminList($req);
         $listForAdmin->transform(function($listApp) {
             return [
-                $listApp->id,
                 DateTimeHelper::parseDate($listApp->submit_datetime),
-                $listApp->user->last_name,
-                $listApp->user->first_name,
+                $listApp->user->full_name,
                 $listApp->application_status->application_status_name,
                 route('expense_show', $listApp->id),
             ];
@@ -115,10 +119,11 @@ class ExpenseApplicationController extends Controller
             return $query->whereDate('submit_datetime', $submitDate);
         });
 
-        $expenseApplication = $query->orderByDesc('submit_datetime')->get();
-        return $expenseApplication;
+        $expenseApplications = $query->orderByDesc('submit_datetime')->get();
+        return $expenseApplications;
     }
 
+    //管理者用一覧作成
     public function fetchAdminList(Request $req)
     {
         $members = User::where('role_id', '>' , Auth::user()->role_id)->where('department_id', '=', Auth::user()->department_id)->get();
@@ -133,12 +138,12 @@ class ExpenseApplicationController extends Controller
             return $query;
         });
 
-        $query->when($appStatus != null, function($query) use($appStatus, $members){
+        $query->when($appStatus != null, function($query) use($appStatus) {
             return $query->where('application_status_id', $appStatus);
         });
 
         //提出日で検索
-        $query->when($submitDate != null, function($query) use($submitDate, $members){
+        $query->when($submitDate != null, function($query) use($submitDate) {
             return $query->whereDate('submit_datetime', $submitDate);
         });
 
@@ -189,8 +194,9 @@ class ExpenseApplicationController extends Controller
     }
 
     //承認・否認
-    public function expense_authorize(Request $params)
+    public function expense_authorize(Request $req)
     {
+        $params = $req->all();
         if($params['authorization'] == 'authorized') {
             $this->expenseService->authorize($params);
         } else {

@@ -36,20 +36,20 @@ $(function () {
 
   //申請押下時ダイアログを表示
   $('#submit_expense').on('click', function () {
-    dialogs.showDialog();
+    dialogs.showDialog($('#expense_application'));
   });
 
 
 
   //詳細画面関連
   //管理者用・承認ボタン
-  $('.authorize').on('click', function () {
+  $('.ex-authorize').on('click', function () {
     formUtil.alterAttr($('.authorization'), 'authorization', 'authorized')
     dialogs.showDialogAndDo($('#expense_show'), '承認しますか？', () => formUtil.customSubmit($('#expense_show'), 'post', $('#expense_show').data('href')));
   });
   //否認ボタン
-  $('.decline').on('click', function () {
-    formUtil.alterAttr($('.authorization'), 'authorization', 'declined')
+  $('.ex-decline').on('click', function () {
+    formUtil.alterAttr($('.ex-authorization'), 'authorization', 'declined')
     dialogs.showDialogAndDo($('#expense_show'), '否認しますか？', () => formUtil.customSubmit($('#expense_show'), 'post', $('#expense_show').data('href')));
   });
 
@@ -58,9 +58,9 @@ $(function () {
   //一覧画面関連
   //ユーザー用一覧をDataTableとしてイニシャライズ
   const showUserTable = () => {
-    tableUtil.initDataTable($('.ex-user'), ['経費精算書ID', '提出日', '申請状況', '詳細'],
+    tableUtil.initDataTable($('.ex-user'), ['提出日', '申請状況', '詳細'], ['10%','10%','10%'],
       {
-        3:
+        2:
           function (data) {
             return '<a href=' + data + '><button type="button" class="btn btn-block btn-success">詳細</button></a>';
           }
@@ -69,9 +69,9 @@ $(function () {
 
   //管理者用一覧をDataTableとしてイニシャライズ
   const showAdminTable = () => {
-    tableUtil.initDataTable($('.ex-admin'), ['経費精算書ID', '提出日', '姓', '名', '申請状況', '詳細'],
+    tableUtil.initDataTable($('.ex-admin'), ['提出日', '氏名', '申請状況', '詳細'], ['20%', '20%', '10%', '10%'],
       {
-        5:
+        3:
           function (data) {
             return '<a href=' + data + '><button type="button" class="btn btn-block btn-success">詳細</button></a>';
           }
@@ -92,7 +92,7 @@ $(function () {
     //AJAX通信・管理者用フォーム
     let userParams = $('#userSearch').serialize();
     $.ajax({
-      url: '/searchUser',
+      url: '/userSearchExpense',
       type: 'GET',
       data: userParams
     }).done(res => {
@@ -107,7 +107,7 @@ $(function () {
     //AJAX通信・管理者用フォーム
     let adminParams = $('#adminSearch').serialize();
     $.ajax({
-      url: '/searchAdmin',
+      url: '/adminSearchExpense',
       type: 'GET',
       data: adminParams
     }).done(res => {

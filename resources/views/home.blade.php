@@ -23,46 +23,23 @@
                         <div class="card-body">
                             <table class="table table-striped table-bordered">
                                 <tr>
-                                    <th>ID</th>
-                                    <th>従業員ID</th>
-                                    <th>提出日</th>
-                                    <th>休暇種別コード</th>
-                                    <th>理由</th>
-                                    <th>備考</th>
-                                    <th>申請状況</th>
+                                    <th style="width:5%">ID</th>
+                                    <th style="width:10%">従業員ID</th>
+                                    <th style="width:10%">提出日</th>
+                                    <th style="width:10%">休暇種別</th>
+                                    <th style="width:20%">理由</th>
+                                    <th style="width:20%">備考</th>
+                                    <th style="width:10%">申請状況</th>
                                 </tr>
-                                @foreach(DB::table('holiday_applications')->get() as $row1)
+                                @foreach(App\HolidayApplication::all() as $row1)
                                 <tr>
                                     <td>{{$row1->id}}</td>
                                     <td>{{$row1->employee_id}}</td>
-                                    <td>{{$row1->submit_datetime}}</td>
-                                    <td>{{$row1->holiday_type_id}}</td>
+                                    <td>{{ DateTimeHelper::parseDate($row1->submit_datetime) }}</td>
+                                    <td>{{$row1->holiday_type->holiday_type_name}}</td>
                                     <td>{{$row1->reason}}</td>
                                     <td>{{$row1->remarks}}</td>
-                                    <td>{{$row1->application_status_id}}</td>
-                                </tr>
-                                @endforeach
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-body">
-                            <table class="table table-striped table-bordered">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>休暇届ID</th>
-                                    <th>休暇日</th>
-                                    <th>休暇時間(開始)</th>
-                                    <th>休暇時間(終了)</th>
-                                </tr>
-                                @foreach(DB::table('holiday_datetimes')->get() as $row2)
-                                <tr>
-                                    <td>{{$row2->id}}</td>
-                                    <td>{{$row2->holiday_application_id}}</td>
-                                    <td>{{$row2->holiday_date}}</td>
-                                    <td>{{$row2->holiday_time_from}}</td>
-                                    <td>{{$row2->holiday_time_to}}</td>
+                                    <td>{{$row1->application_status->application_status_name}}</td>
                                 </tr>
                                 @endforeach
                             </table>

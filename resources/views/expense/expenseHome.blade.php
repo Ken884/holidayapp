@@ -11,13 +11,13 @@
                     <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link active" data-toggle="tab" href="#tab1">
-                                あなたの経費精算書一覧
+                                <h5>あなたの経費精算書一覧</h5>
                             </a>
                         </li>
                         @can('admin')
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#tab2">
-                                みんなの経費精算書一覧
+                                <h5>みんなの経費精算書一覧</h5>
                             </a>
                         </li>
                         @endcan
@@ -29,8 +29,58 @@
                                 <div class="card">
                                     <div class="card-header">ダッシュボード</div>
                                     <div class="card-body">
-                                        <p>これから考える</p>
-                                        <a href="{{ route('expense_create') }}"><button class="btn btn-primary">新規作成</button></a>
+                                        <div class="row my-2">
+                                            <div class="col-sm-3 offset-1 mr-3">
+                                                <div class="small-box bg-success">
+                                                    <div class="inner">
+                                                        <h3>￥{{ $info['money'] }}</h3>
+                                                        <p>これまで落とした経費</p>
+                                                    </div>
+                                                    <div class="icon">
+                                                        <i class="fas fa-yen-sign"></i>
+                                                    </div>
+                                                    <a href="#" class="small-box-footer">
+                                                        <span>more info</span>
+                                                        <i class="fas fa-arrow-circle-right"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3 mx-3">
+                                                <div class="small-box bg-primary">
+                                                    <div class="inner">
+                                                        <h3>{{ $info['approved'] }}件</h3>
+                                                        <p>承認された経費精算書</p>
+                                                    </div>
+                                                    <div class="icon">
+                                                        <i class="fas fa-chart-bar"></i>
+                                                    </div>
+                                                    <a href="#" class="small-box-footer">
+                                                        <span>more info</span>
+                                                        <i class="fas fa-arrow-circle-right"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3 mx-3">
+                                                <div class="small-box bg-danger">
+                                                    <div class="inner">
+                                                        <h3>{{ $info['denied'] }}件</h3>
+                                                        <p>否認された経費精算書</p>
+                                                    </div>
+                                                    <div class="icon">
+                                                        <i class="fas fa-chart-bar"></i>
+                                                    </div>
+                                                    <a href="#" class="small-box-footer">
+                                                        <span>more info</span>
+                                                        <i class="fas fa-arrow-circle-right"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row my-2">
+                                            <div class="col-sm-4 offset-sm-4">
+                                                <a href="{{ route('expense_create') }}"><button class="btn btn-primary btn-block">新規作成</button></a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="card">
@@ -58,8 +108,10 @@
                                                 </div>
                                             </div>
                                         </form>
-                                        <table class="table table-striped table-bordered ex-user" data-json="{{ $expenseApplications }}">
-                                        </table>
+                                        <div class="col-sm-7 offset-sm-2">
+                                            <table class="table table-striped table-bordered ex-user" data-json="{{ $expenseApplications }}">
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

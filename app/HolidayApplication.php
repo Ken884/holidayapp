@@ -21,7 +21,7 @@ class HolidayApplication extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo('App\User', 'employee_id');
     }
 
     public function holiday_datetimes()

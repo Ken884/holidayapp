@@ -12,6 +12,7 @@
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
+    <script src="{{ asset('node_modules/@fortawesome/fontawesome-free/js/all.js') }}" defer></script>
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -32,7 +33,7 @@
 
             <section class="content">
                 <main class="py-4">
-                    <div class="col-10 offset-2">
+                    <div class="col-10 offset-1">      
                         @yield('content')
                     </div>
                 </main>

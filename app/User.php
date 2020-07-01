@@ -39,7 +39,7 @@ class User extends Authenticatable
 
     public function holiday_applications()
     {
-        return $this->hasMany('App\HolidayApplication');
+        return $this->hasMany('App\HolidayApplication', 'employee_id');
     }
 
     public function expense_applications()
@@ -65,6 +65,11 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo('App\Role');
+    }
+
+    public function getFullNameAttribute()
+    {
+        return $this->last_name.' '.$this->first_name;
     }
 
 }

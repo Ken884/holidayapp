@@ -16,6 +16,7 @@ use App\Services\HolidayService;
 use App\Http\Requests\HolidayDurationAjax;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ApplyNotification;
+use App\Helpers\DateTimeHelper;
 
 class HolidayApplicationController extends Controller
 {
@@ -25,30 +26,144 @@ class HolidayApplicationController extends Controller
     {
         $this->holidayService = $holidayService;
     }
-    /**
-     * 申請画面の項目の表示、入力値の保存に関するコントローラ
-     */
-
-    /*
-    *休暇届のダッシュボードページ。自身の登録した休暇届の一覧を取得
-    */
-    public function index()
+    
+    //一覧画面
+    public function index(Request $req)
     {
-        $query = HolidayApplication::query();
+        $holidayApplications = $this->fetchUserList($req)
+        ->transform(function ($holidayApplication) {
+            return [
+                DateTimeHelper::parseDate($holidayApplication->submit_datetime),
+                $holidayApplication->holiday_type->holiday_type_name,
+                $holidayApplication->application_status->application_status_name,
+                route('holiday_show', $holidayApplication->id),
+            ];
+        });
+        $holidayApplications = json_encode($holidayApplications);
 
-        $holidayApplications = HolidayApplication::where('employee_id', Auth::user()->id);
+        $holidayapps = HolidayApplication::where('employee_id', Auth::user()->id);
+        $authorized = $holidayapps->where('application_status_id', 2);
+        
+        $days = HolidayDatetime::whereIn('holiday_application_id', $authorized->pluck('id'))->count();
+        $approved = $authorized->count();
+        $denied = $holidayapps->where('application_status_id', 3)->count();
+        $info = 
+        [
+            'days' => $days,
+            'approved' => $approved,
+            'denied' => $denied,
+        ];
 
-        return view('holiday/holidayHome', compact('holidayApplications'));
+
+        $listForAdmin = $this->fetchAdminsList($req)
+        ->transform(function ($listApp) {
+            return [
+                DateTimeHelper::parseDate($listApp->submit_datetime),
+                $listApp->user->full_name,
+                $listApp->holiday_type->holiday_type_name,
+                $listApp->application_status->application_status_name,
+                route('holiday_show', $listApp->id),
+            ];
+        });
+        $listForAdmin = json_encode($listForAdmin);
+
+        return view('holiday/holidayHome', compact('holidayApplications', 'info' , 'listForAdmin'));
     }
 
-    /*
-    *申請画面に祝日の配列を渡す
-    */
+    //管理者用一覧絞り込み
+    public function adminSearch(Request $req)
+    {
+        $listForAdmin = $this->fetchAdminsList($req)
+        ->transform(function ($listApp) {
+            return [
+                DateTimeHelper::parseDate($listApp->submit_datetime),
+                $listApp->user->last_name,
+                $listApp->user->first_name,
+                $listApp->holiday_type->holiday_type_name,
+                $listApp->application_status->application_status_name,
+                route('holiday_show', $listApp->id),
+            ];
+        });
+
+        return ['json' => $listForAdmin];
+    }
+
+    //ユーザー用一覧絞り込み
+    public function userSearch(Request $req)
+    {
+        $holidayApplications = $this->fetchUserList($req)
+        ->transform(function ($holidayApplication) {
+            return [
+                DateTimeHelper::parseDate($holidayApplication->submit_datetime),
+                $holidayApplication->holiday_type->holiday_type_name,
+                $holidayApplication->application_status->application_status_name,
+                route('holiday_show', $holidayApplication->id),
+            ];
+        });
+        return ['json' => $holidayApplications];
+    }
+
+    public function fetchUserList(Request $req)
+    {
+        $query = HolidayApplication::where('employee_id', Auth::user()->id);
+
+        $appStatus = $req['appStatus'];
+        $submitDate = $req['submitDate'];
+        //初期表示は全件
+        $query->when(!($req->has('appStatus')) && !($req->has('submitDate')), function ($query) {
+            return $query;
+        });
+
+        //申請状況で検索
+        $query->when($appStatus != null, function ($query) use($appStatus) {
+            return $query->where('application_status_id', $appStatus);
+        });
+
+        //提出日で検索
+        $query->when($submitDate != null, function ($query) use($submitDate) {
+            return $query->whereDate('submit_datetime', $submitDate);
+        });
+
+        $holidayApplications = $query->orderByDesc('submit_datetime')->get();
+        return $holidayApplications;
+    }
+
+    public function fetchAdminsList(Request $req)
+    {
+
+        $members = User::where('role_id', '>', Auth::user()->role_id)->where('department_id', '=', Auth::user()->department_id);
+        $query = HolidayApplication::where('employee_id', $members->pluck('id'));
+
+        $appStatus = $req['appStatus'];
+        $submitDate = $req['submitDate'];
+
+        //初期表示は全件
+        $query->when(!($req->has('appStatus')) && !($req->has('submitDate')), function ($query) {
+            return $query;
+        });
+
+        //申請状況で検索
+        $query->when($appStatus != null, function ($query) use($appStatus) {
+            return $query->where('application_status_id', $appStatus);
+        });
+
+        $query->when($submitDate != null, function ($query) use($submitDate) {
+            return $query->whereDate('submit_datetime', $submitDate);
+        });
+
+        $listForAdmin = $query->orderByDesc('submit_datetime')->get();
+        return $listForAdmin;
+    }
+
+
+    //申請画面に祝日の配列を渡す
     public function holiday_create(Request $req)
     {
+        $holidayApplication = new HolidayApplication;
         $yasumiArray = $this->holidayService->getYasumiArray();
         $yasumiArray = json_encode($yasumiArray);
-        return view('holiday/holidayApplication', compact('yasumiArray'));
+        $mode = 'new';
+        return view('holiday/holidayApplication', compact('holidayApplication', 'yasumiArray', 'mode'));
     }
     
     /*
@@ -89,6 +204,29 @@ class HolidayApplicationController extends Controller
     {
         $datetime = $holidayApplication->holiday_datetimes()->get();
         return view('holiday/holidayDetail', compact('holidayApplication', 'datetime'));
+    }
+
+    //修正
+    public function holiday_edit(HolidayApplication $holidayApplication)
+    {
+        //
+        $datetime = $holidayApplication->holiday_datetimes()->get();
+        $mode = 'edit';
+        return view('holiday/holidayApplication', compact('holidayApplication', 'datetime' ,'mode'));
+    }
+
+    //承認・否認
+    public function holiday_authorize(Request $req)
+    {
+        //
+        $params = $req->all();
+        if($params['authorization'] == 'authorized') {
+            $this->holidayService->authorize($params);
+        } else {
+            $this->holidayService->decline($params);
+        }
+
+        return redirect('holidayapplications');
     }
 
 }
