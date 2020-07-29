@@ -92,6 +92,7 @@ $(function () {
 
     //時間のonClickイベント
     $('.timepicker').on('change', function () { showBusinessHours() });
+    
     //スペルチェックをさせない
     $("input[type='text'], textarea").attr('spellcheck', false);
 
@@ -171,6 +172,6 @@ $(function () {
   });
 
   $(document).ready(function () {
-      $('#holiday_days').val()
+      showBusinessDays();
   });
 });

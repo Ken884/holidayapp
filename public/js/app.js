@@ -101002,7 +101002,7 @@ $(function () {
   //管理者用・承認ボタン
 
   $('.ex-authorize').on('click', function () {
-    formUtil.alterAttr($('.authorization'), 'authorization', 'authorized');
+    formUtil.alterAttr($('.ex-authorization'), 'authorization', 'authorized');
     dialogs.showDialogAndDo($('#expense_show'), '承認しますか？', function () {
       return formUtil.customSubmit($('#expense_show'), 'post', $('#expense_show').data('href'));
     });
@@ -101384,7 +101384,7 @@ $(function () {
     });
   });
   $(document).ready(function () {
-    $('#holiday_days').val();
+    showBusinessDays();
   });
 });
 

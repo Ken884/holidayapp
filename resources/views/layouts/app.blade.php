@@ -33,7 +33,7 @@
 
             <section class="content">
                 <main class="py-4">
-                    <div class="col-10 offset-1">      
+                    <div class="col-10 offset-1 d-flex">      
                         @yield('content')
                     </div>
                 </main>

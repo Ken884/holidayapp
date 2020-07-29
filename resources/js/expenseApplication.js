@@ -44,7 +44,7 @@ $(function () {
   //詳細画面関連
   //管理者用・承認ボタン
   $('.ex-authorize').on('click', function () {
-    formUtil.alterAttr($('.authorization'), 'authorization', 'authorized')
+    formUtil.alterAttr($('.ex-authorization'), 'authorization', 'authorized')
     dialogs.showDialogAndDo($('#expense_show'), '承認しますか？', () => formUtil.customSubmit($('#expense_show'), 'post', $('#expense_show').data('href')));
   });
   //否認ボタン

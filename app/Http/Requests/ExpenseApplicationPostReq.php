@@ -33,7 +33,7 @@ class ExpenseApplicationPostReq extends FormRequest
         return [
             'occurred_date.*' => 'required|date',
             'statement.*' => 'required|max:80',
-            'amount.*' => 'required|integer|between:1,10000000',
+            'amount.*' => 'required|integer|between:1,9999999',
             'remarks' => 'nullable|max:255',
         ];
     }

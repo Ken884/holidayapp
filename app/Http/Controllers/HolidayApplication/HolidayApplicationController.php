@@ -132,7 +132,7 @@ class HolidayApplicationController extends Controller
     {
 
         $members = User::where('role_id', '>', Auth::user()->role_id)->where('department_id', '=', Auth::user()->department_id);
-        $query = HolidayApplication::where('employee_id', $members->pluck('id'));
+        $query = HolidayApplication::whereIn('employee_id', $members->pluck('id'));
 
         $appStatus = $req['appStatus'];
         $submitDate = $req['submitDate'];

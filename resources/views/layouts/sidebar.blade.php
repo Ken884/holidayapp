@@ -5,13 +5,16 @@
     </a>
 
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar layout-fixed">
         <!-- Sidebar user panel (optional) -->
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
             </div>
             <div class="info">
-                <a href="#" class="d-block">{{ Auth::user()->last_name }} {{ Auth::user()->first_name }}</a>
+                <a href="#" class="d-block">
+                    <i class="nav-icon fas fa-user-cog fa-lg mr-2"></i>
+                    {{ Auth::user()->last_name }} {{ Auth::user()->first_name }}
+                </a>
             </div>
         </div>
 
@@ -32,6 +35,26 @@
                                 <i class="fas fa-home fa-lg"></i>
                                 <p> トップ </p>
                             </a>
+                        </li>
+                        <li class="nav-item has-treeview menu-open">
+                            <a href="#" class="nav-link ml-2">
+                                <i class="fas fa-business-time fa-lg"></i>
+                                <p> 勤怠 <i class="right fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link ml-4">
+                                        <i class="far fa-list-alt fa-lg"></i>
+                                        <p> 一覧 </p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link ml-4">
+                                        <i class="fas fa-stopwatch fa-lg"></i>
+                                        <p> 打刻 </p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="nav-item has-treeview menu-open">
                             <a href="#" class="nav-link ml-2">
@@ -67,6 +90,26 @@
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ route('expense_create') }}" class="nav-link ml-4">
+                                        <i class="fas fa-folder-plus fa-lg"></i>
+                                        <p> 申請 </p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-treeview menu-open">
+                            <a href="#" class="nav-link ml-2">
+                                <i class="fas fa-subway fa-lg"></i>
+                                <p> 通勤手当・通勤経路 <i class="right fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link ml-4">
+                                        <i class="far fa-list-alt fa-lg"></i>
+                                        <p> 一覧 </p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link ml-4">
                                         <i class="fas fa-folder-plus fa-lg"></i>
                                         <p> 申請 </p>
                                     </a>

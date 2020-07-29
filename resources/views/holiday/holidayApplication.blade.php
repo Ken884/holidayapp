@@ -22,9 +22,9 @@
                             <label class="mt-2">種別</label>
                         </div>
                         <div class="col-4 col-sm-2 my-2 mx-2">
-                            <select id="holiday_type_id" name="holiday_type_id" class="form-control">
+                            <select id="holiday_type_id" name="holiday_type_id" class="form-control" >
                                 @foreach(\App\HolidayType::all() as $holiday_type)
-                                <option value="{{ $holiday_type->id }}" @if(old('holiday_type_id')==$holiday_type->id )selected @endif>{{$holiday_type->holiday_type_name}}</option>
+                                <option value="{{ $holiday_type->id }}"  data-code="{{ $holiday_type->holiday_type_code }}" @if(old('holiday_type_id')==$holiday_type->id )selected @endif>{{$holiday_type->holiday_type_name}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -88,7 +88,7 @@
                         </div>
                     </div>
                     <div class="row my-4">
-                        <div class="col-sm-2 offset-sm-2">
+                        <div class="col-sm-2 offset-sm-5">
                             <button id="submit_holiday" class="btn btn-primary btn-block" type="button">申請</button>
                         </div>
                     </div>

@@ -37,13 +37,13 @@ class ExpenseApplicationController extends Controller
         });
         $expenseApplications = json_encode($expenseApplications);
         
-        $apps = ExpenseApplication::where('employee_id', Auth::user()->id);
+        $apps = ExpenseApplication::where('employee_id', Auth::user()->id)->get();
         $authorized = $apps->where('application_status_id', 2);
         $money = ExpenseStatement::whereIn('expense_id', $authorized->pluck('id'))->pluck('amount')->sum();
-        $approved = $authorized->get()->count();
-        $denied = $apps->where('application_status_id', 3)->get()->count();
+        $approved = $authorized->count();
+        $denied = $apps->where('application_status_id', 3)->count();
         
-        $info =[
+        $info = [
             'money' => $money, 
             'approved' => $approved, 
             'denied' => $denied
